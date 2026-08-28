@@ -59,7 +59,7 @@ public class ImportContainerImage : DkrCmdlet
             messageWriter.ClearProgress();
             if (imageId != null)
             {
-                WriteObject((await ContainerOperations.GetImagesByRepoTag(imageId, DkrClient)).Single());
+                WriteObject((await ContainerOperations.GetImagesByRepoTagAsync(imageId, DkrClient)).Single());
             }
             else if (!failed)
             {

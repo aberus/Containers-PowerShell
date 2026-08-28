@@ -34,7 +34,7 @@ public class GetContainer : DkrCmdlet
         {
             foreach (var id in ContainerIdOrName)
             {
-                WriteObject(await ContainerOperations.GetContainersByIdOrName(id, DkrClient));
+                WriteObject(await ContainerOperations.GetContainersByIdOrNameAsync(id, DkrClient));
             }
         }
         else

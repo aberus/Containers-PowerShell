@@ -61,7 +61,7 @@ public class SubmitContainerImage : DkrCmdlet
 
         if (PassThru)
         {
-            WriteObject((await ContainerOperations.GetImagesByRepoTag(repoTag, DkrClient)).Single());
+            WriteObject((await ContainerOperations.GetImagesByRepoTagAsync(repoTag, DkrClient)).Single());
         }
     }
 

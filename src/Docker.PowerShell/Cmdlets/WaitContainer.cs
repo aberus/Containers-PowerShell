@@ -37,7 +37,7 @@ public class WaitContainer : MultiContainerOperationCmdlet
 
             if (PassThru)
             {
-                WriteObject((await ContainerOperations.GetContainersByIdOrName(id, DkrClient)).Single());
+                WriteObject((await ContainerOperations.GetContainersByIdOrNameAsync(id, DkrClient)).Single());
             }
         }
     }

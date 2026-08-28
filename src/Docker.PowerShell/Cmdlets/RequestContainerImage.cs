@@ -68,7 +68,7 @@ public class RequestContainerImage : DkrCmdlet
         messageWriter.ClearProgress();
         if (repoTag != null)
         {
-            WriteObject((await ContainerOperations.GetImagesByRepoTag(repoTag, DkrClient)).Single());
+            WriteObject((await ContainerOperations.GetImagesByRepoTagAsync(repoTag, DkrClient)).Single());
         }
         else if (!failed)
         {

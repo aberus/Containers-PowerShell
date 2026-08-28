@@ -46,7 +46,7 @@ public class InvokeContainerImage : CreateContainerCmdlet
     {
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
-            var createResult = await ContainerOperations.CreateContainer(
+            var createResult = await ContainerOperations.CreateContainerAsync(
                 id,
                 MemberwiseClone() as CreateContainerCmdlet,
                 DkrClient);
@@ -91,7 +91,7 @@ public class InvokeContainerImage : CreateContainerCmdlet
                 }
                 else if (PassThru)
                 {
-                    WriteObject((await ContainerOperations.GetContainersById(createResult.ID, DkrClient)).Single());
+                    WriteObject((await ContainerOperations.GetContainersByIdAsync(createResult.ID, DkrClient)).Single());
                 }
             }
         }

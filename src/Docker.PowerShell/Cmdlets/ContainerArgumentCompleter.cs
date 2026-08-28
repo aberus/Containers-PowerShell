@@ -29,8 +29,8 @@ public class ContainerArgumentCompleter : IArgumentCompleter
         }
         else
         {
-            result = ContainerOperations.GetContainersById(wordToComplete, client).Result;
-            result = result.Concat(ContainerOperations.GetContainersByName(wordToComplete, client).Result).ToList();
+            result = ContainerOperations.GetContainersByIdAsync(wordToComplete, client).Result;
+            result = result.Concat(ContainerOperations.GetContainersByNameAsync(wordToComplete, client).Result).ToList();
         }
 
         return result.SelectMany(container =>

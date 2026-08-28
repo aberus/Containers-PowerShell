@@ -20,10 +20,11 @@ internal static class ContainerOperations
     /// <param name="cmdlet"></param>
     /// <param name="dkrClient"></param>
     /// <returns></returns>
-    internal static Task<CreateContainerResponse> CreateContainer(
+    internal static Task<CreateContainerResponse> CreateContainerAsync(
         string id,
         CreateContainerCmdlet cmdlet,
-        DockerClient dkrClient)
+        DockerClient dkrClient,
+        CancellationToken cancellationToken = default)
     {
         var configuration = cmdlet.Configuration ?? new ContainerConfig();
 
@@ -58,7 +59,7 @@ internal static class ContainerOperations
             });
     }
 
-    internal static Task<IList<ContainerListResponse>> GetContainersById(string id, DockerClient dkrClient)
+    internal static Task<IList<ContainerListResponse>> GetContainersByIdAsync(string id, DockerClient dkrClient)
     {
         return dkrClient.Containers.ListContainersAsync(new ContainersListParameters
         {
@@ -74,7 +75,7 @@ internal static class ContainerOperations
         });
     }
 
-    internal static Task<IList<ContainerListResponse>> GetContainersByName(string name, DockerClient dkrClient)
+    internal static Task<IList<ContainerListResponse>> GetContainersByNameAsync(string name, DockerClient dkrClient)
     {
         return dkrClient.Containers.ListContainersAsync(new ContainersListParameters
         {
@@ -96,9 +97,9 @@ internal static class ContainerOperations
     /// <param name="id">The container identifier to retrieve.</param>
     /// <param name="dkrClient">The client to request the container from.</param>
     /// <returns>The single container object matching the id.</returns>
-    internal static async Task<IList<ContainerListResponse>> GetContainersByIdOrName(string id, DockerClient dkrClient)
+    internal static async Task<IList<ContainerListResponse>> GetContainersByIdOrNameAsync(string id, DockerClient dkrClient)
     {
-        return (await GetContainersByName(id, dkrClient)).Where(c => c.Names.Contains($"/{id}")).Concat(await GetContainersById(id, dkrClient)).ToList();
+        return (await GetContainersByNameAsync(id, dkrClient)).Where(c => c.Names.Contains($"/{id}")).Concat(await GetContainersByIdAsync(id, dkrClient)).ToList();
     }
 
     /// <summary>
@@ -125,7 +126,7 @@ internal static class ContainerOperations
     /// <param name="repoTag">The image repository:tag to look for.</param>
     /// <param name="dkrClient">The client to request the image from.</param>
     /// <returns>The image objects matching the repository:tag.</returns>
-    internal static async Task<IList<ImagesListResponse>> GetImagesByRepoTag(string repoTag, DockerClient dkrClient)
+    internal static async Task<IList<ImagesListResponse>> GetImagesByRepoTagAsync(string repoTag, DockerClient dkrClient)
     {
         return (await dkrClient.Images.ListImagesAsync(new ImagesListParameters() { All = true }))
             .Where(i => i.RepoTags.Any(rt => repoTag.Split('/').Last().Contains(":") ? rt == repoTag : rt == (repoTag + ":latest"))).ToList();
