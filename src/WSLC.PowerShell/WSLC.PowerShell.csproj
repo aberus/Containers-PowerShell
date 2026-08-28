@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>WSLC Cmdlet Library</Description>
+    <Version>1.0.0</Version>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>x64;ARM64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <WSLCSDK_Platform>x64</WSLCSDK_Platform>
+    <WSLCPackageRoot>$(NuGetPackageRoot)microsoft.wsl.containers\2.9.9\</WSLCPackageRoot>
+    <WindowsSdkPackageVersion>10.0.26100.81</WindowsSdkPackageVersion>
+    <CsWinRTWindowsMetadata>$(NuGetPackageRoot)microsoft.windows.sdk.net.ref\10.0.26100.81\winmd</CsWinRTWindowsMetadata>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AssemblyTitle>WSLC</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WSL.Containers" Version="2.9.9">
+      <ExcludeAssets>build</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="wslcsdkcs">
+      <HintPath>$(WSLCPackageRoot)lib\net8.0-windows10.0.19041.0\wslcsdkcs.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+
+    <None Include="$(WSLCPackageRoot)winmd\Microsoft.WSL.Containers.winmd" Link="Microsoft.WSL.Containers.winmd" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(WSLCPackageRoot)runtimes\win-$(WSLCSDK_Platform)\native\wslcsdk.dll" Link="wslcsdk.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="WSLC.psd1" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="WSLC.Format.ps1xml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
