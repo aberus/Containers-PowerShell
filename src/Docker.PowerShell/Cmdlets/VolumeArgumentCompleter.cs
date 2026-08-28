@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Language;
+using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
-public class NetworkArgumentCompleter : IArgumentCompleter
+public class VolumeArgumentCompleter : IArgumentCompleter
 {
     /// <summary>
     /// The drivers docker ships with, so that -Driver still completes on a daemon that
-    /// has no network using them yet.
+    /// has no volume using them yet.
     /// </summary>
-    private static readonly string[] BuiltInDrivers = ["bridge", "host", "ipvlan", "macvlan", "none", "overlay"];
+    private static readonly string[] BuiltInDrivers = ["local"];
 
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,
                                                           string parameterName,
@@ -25,21 +26,16 @@ public class NetworkArgumentCompleter : IArgumentCompleter
 
         var client = DockerFactory.CreateClient(fakeBoundParameters);
 
-        var networks = client.Networks.ListNetworksAsync().GetAwaiter().GetResult();
+        // The daemon reports no volumes as a null list rather than an empty one.
+        IList<VolumeResponse> volumes = client.Volumes.ListAsync(new VolumesListParameters()).GetAwaiter().GetResult().Volumes ?? [];
 
-        // Cmdlets such as Get-ContainerNet keep Id and Name in separate parameter sets, so
-        // complete each one with just the matching field.
+        // Volumes are addressed by name, so every parameter other than the ones describing
+        // the volume itself completes to a name.
         IEnumerable<string> candidates = parameterName switch
         {
-            "Driver" => networks.Select(network => network.Driver).Concat(BuiltInDrivers),
-            "Scope" => networks.Select(network => network.Scope),
-            "Id" => networks.Select(network => network.ID),
-            "Name" => networks.Select(network => network.Name),
-            // If the user has already typed part of the name, then include IDs that start
-            // with that portion. Otherwise, just let the user tab through the names.
-            _ => wordToComplete.Length == 0
-                ? networks.Select(network => network.Name)
-                : networks.SelectMany(network => new[] { network.Name, network.ID }),
+            "Driver" => volumes.Select(volume => volume.Driver).Concat(BuiltInDrivers),
+            "Scope" => volumes.Select(volume => volume.Scope),
+            _ => volumes.Select(volume => volume.Name),
         };
 
         return candidates

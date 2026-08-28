@@ -154,5 +154,48 @@
 				</TableRowEntries>
 			</TableControl>
 		</View>
+		<View>
+			<Name>ContainerVolume</Name>
+			<ViewSelectedBy>
+				<TypeName>Docker.DotNet.Models.VolumeResponse</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>Name</Label>
+						<Width>30</Width>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Driver</Label>
+						<Width>10</Width>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Scope</Label>
+						<Width>10</Width>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Mountpoint</Label>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>Name</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Driver</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Scope</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Mountpoint</PropertyName>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
 	</ViewDefinitions>
 </Configuration>

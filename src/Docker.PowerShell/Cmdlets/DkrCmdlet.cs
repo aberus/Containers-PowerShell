@@ -18,6 +18,7 @@ internal static class CommonParameterSetNames
     public const string ConfigObject = "ConfigObject";
     public const string NetworkName = "NetworkName";
     public const string NetworkObject = "NetworkObject";
+    public const string VolumeObject = "VolumeObject";
     public const string AllImages = "AllImages";
 }
 

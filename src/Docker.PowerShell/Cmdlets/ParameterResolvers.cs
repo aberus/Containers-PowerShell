@@ -54,4 +54,19 @@ internal static class ParameterResolvers
         return networks.Select(c => c.ID);
     }
 
+    /// <summary>
+    /// Uses either the list of names, or gets the list of names from the list of volumes.
+    /// </summary>
+    /// <param name="volumes">The list of volume objects to get values from.</param>
+    /// <param name="names">The list of names.</param>
+    /// <returns>List of names to process.</returns>
+    internal static IEnumerable<string> GetVolumeNames(VolumeResponse[] volumes, string[] names)
+    {
+        if (names != null && names.Length != 0)
+        {
+            return names;
+        }
+
+        return volumes.Select(v => v.Name);
+    }
 }
