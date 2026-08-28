@@ -25,7 +25,8 @@ public class RemoveContainer : MultiContainerOperationCmdlet
         foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))
         {
             await DkrClient.Containers.RemoveContainerAsync(id,
-                new ContainerRemoveParameters() { Force = Force.ToBool() }
+                new ContainerRemoveParameters() { Force = Force.ToBool() },
+                CmdletCancellationToken
                 );
         }
     }

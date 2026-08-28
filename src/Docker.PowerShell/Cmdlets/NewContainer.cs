@@ -1,5 +1,4 @@
-﻿using System;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 using Docker.PowerShell.Objects;
 using Docker.DotNet.Models;
 using System.Threading.Tasks;
@@ -19,12 +18,15 @@ public class NewContainer : CreateContainerCmdlet
     /// </summary>
     protected override async Task ProcessRecordAsync()
     {
+        ThrowIfContainerWasPiped();
+
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
             var createResult = await ContainerOperations.CreateContainerAsync(
                 id,
                 MemberwiseClone() as CreateContainerCmdlet,
-                DkrClient);
+                DkrClient,
+                CmdletCancellationToken);
 
             if (createResult.Warnings != null)
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Management.Automation;
 using System.Threading.Tasks;
 using Docker.DotNet.Models;
@@ -9,7 +8,7 @@ namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Invoke, "ContainerImage",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
-[Alias("Run-ContainerImage")]
+[Alias("Run-ContainerImage", "Run-Container")]
 [OutputType(typeof(ContainerListResponse))]
 public class InvokeContainerImage : CreateContainerCmdlet
 {
@@ -37,6 +36,8 @@ public class InvokeContainerImage : CreateContainerCmdlet
 
     #endregion
 
+    private string createdId;
+
     #region Overrides
 
     /// <summary>
@@ -44,12 +45,15 @@ public class InvokeContainerImage : CreateContainerCmdlet
     /// </summary>
     protected override async Task ProcessRecordAsync()
     {
+        ThrowIfContainerWasPiped();
+
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
             var createResult = await ContainerOperations.CreateContainerAsync(
                 id,
                 MemberwiseClone() as CreateContainerCmdlet,
-                DkrClient);
+                DkrClient,
+                CmdletCancellationToken);
 
             if (createResult.Warnings != null)
             {
@@ -64,6 +68,9 @@ public class InvokeContainerImage : CreateContainerCmdlet
 
             if (!string.IsNullOrEmpty(createResult.ID))
             {
+
+                createdId = createResult.ID;
+
                 ContainerAttachParameters attachParams = null;
                 if (!Detach)
                 {
@@ -94,6 +101,18 @@ public class InvokeContainerImage : CreateContainerCmdlet
                     WriteObject((await ContainerOperations.GetContainersByIdAsync(createResult.ID, DkrClient)).Single());
                 }
             }
+        }
+    }
+
+    protected override async Task StopProcessingAsync()
+    {
+        if (!string.IsNullOrEmpty(createdId))
+        {
+
+            await DkrClient.Containers.StopContainerAsync(
+                createdId,
+                new ContainerStopParameters(),
+                CmdletCancellationToken);
         }
     }
 

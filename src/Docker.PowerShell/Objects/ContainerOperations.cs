@@ -20,7 +20,7 @@ internal static class ContainerOperations
     /// <param name="cmdlet"></param>
     /// <param name="dkrClient"></param>
     /// <returns></returns>
-    internal static Task<CreateContainerResponse> CreateContainerAsync(
+    internal static async Task<CreateContainerResponse> CreateContainerAsync(
         string id,
         CreateContainerCmdlet cmdlet,
         DockerClient dkrClient,
@@ -40,6 +40,14 @@ internal static class ContainerOperations
 
         var hostConfiguration = cmdlet.HostConfiguration ?? new HostConfig();
 
+        if (cmdlet.Publish?.Length > 0)
+        {
+            hostConfiguration.PortBindings ??= new Dictionary<string, IList<PortBinding>>();
+            var portBindings = NatParser.ParsePortSpecs(cmdlet.Publish);
+            hostConfiguration.PortBindings =
+                hostConfiguration.PortBindings.Concat(portBindings).ToDictionary(x => x.Key, x => x.Value);
+        }
+
         if (string.IsNullOrEmpty(hostConfiguration.Isolation))
         {
             hostConfiguration.Isolation = cmdlet.Isolation.ToString();
@@ -51,12 +59,69 @@ internal static class ContainerOperations
         configuration.AttachStdout = true;
         configuration.AttachStderr = true;
 
-        return dkrClient.Containers.CreateContainerAsync(
-            new CreateContainerParameters(configuration)
-            {
-                Name = cmdlet.Name,
-                HostConfig = hostConfiguration
-            });
+        var createParameters = new CreateContainerParameters(configuration)
+        {
+            Name = cmdlet.Name,
+            HostConfig = hostConfiguration
+        };
+
+        try
+        {
+            return await dkrClient.Containers.CreateContainerAsync(createParameters, cancellationToken);
+        }
+        catch (DockerImageNotFoundException) when (!string.IsNullOrEmpty(configuration.Image))
+        {
+            // The engine's create endpoint never pulls a missing image. Mirror
+            // `docker create`/`docker run` by pulling it, then retrying the create once.
+            await PullImageForCreateAsync(configuration.Image, cmdlet, dkrClient, cancellationToken);
+            return await dkrClient.Containers.CreateContainerAsync(createParameters, cancellationToken);
+        }
+    }
+
+    /// <summary>
+    /// Pulls an image that a container create depends on, reporting progress through the cmdlet.
+    /// </summary>
+    private static async Task PullImageForCreateAsync(
+        string image,
+        PSCmdlet cmdlet,
+        DockerClient dkrClient,
+        CancellationToken cancellationToken)
+    {
+        var (fromImage, tag) = SplitImageReference(image);
+
+        cmdlet.WriteVerbose($"Unable to find image '{image}' locally; pulling from registry.");
+
+        var messageWriter = new JsonMessageWriter(cmdlet);
+        var progress = new Progress<JSONMessage>(messageWriter.WriteJsonMessage);
+
+        await dkrClient.Images.CreateImageAsync(
+            new ImagesCreateParameters { FromImage = fromImage, Tag = tag },
+            null,
+            progress,
+            cancellationToken);
+
+        messageWriter.ClearProgress();
+    }
+
+    /// <summary>
+    /// Splits an image reference into the repository and tag components for a pull. A colon
+    /// that precedes the final path segment is treated as a registry port, not a tag, and
+    /// digest references (repo@sha256:...) are passed through untouched.
+    /// </summary>
+    private static (string fromImage, string tag) SplitImageReference(string image)
+    {
+        if (image.Contains('@'))
+        {
+            return (image, null);
+        }
+
+        var lastColon = image.LastIndexOf(':');
+        if (lastColon > image.LastIndexOf('/'))
+        {
+            return (image.Substring(0, lastColon), image.Substring(lastColon + 1));
+        }
+
+        return (image, "latest");
     }
 
     internal static Task<IList<ContainerListResponse>> GetContainersByIdAsync(string id, DockerClient dkrClient)

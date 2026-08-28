@@ -76,5 +76,31 @@ public abstract class CreateContainerCmdlet : ImageOperationCmdlet
     [Parameter(ParameterSetName = CommonParameterSetNames.ImageObject)]
     public SwitchParameter Terminal { get; set; }
 
+    /// <summary>
+    /// Catches container objects piped into an image-based cmdlet. Without this, the
+    /// pipeline coerces the container to its type name and sends that to the daemon as
+    /// an image reference; binding it here lets the cmdlet fail with guidance instead.
+    /// </summary>
+    [Parameter(ParameterSetName = CommonParameterSetNames.ContainerObject,
+        ValueFromPipeline = true,
+        Mandatory = true,
+        DontShow = true)]
+    public ContainerListResponse[] Container { get; set; }
+
     #endregion
+
+    /// <summary>
+    /// Fails with guidance when a container object arrived from the pipeline.
+    /// </summary>
+    protected void ThrowIfContainerWasPiped()
+    {
+        if (Container != null)
+        {
+            throw new PSArgumentException(
+                $"{MyInvocation.MyCommand.Name} creates a new container from an image, but a container object " +
+                "was received from the pipeline. To start an existing container, pipe it to Start-Container; " +
+                "to create and run in one step, pass the image name directly (e.g. " +
+                $"{MyInvocation.MyCommand.Name} -Publish 8000:8000 <image>).");
+        }
+    }
 }
