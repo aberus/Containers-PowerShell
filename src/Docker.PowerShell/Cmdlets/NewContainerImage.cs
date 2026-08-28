@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.New, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Build-ContainerImage")]
 [OutputType(typeof(ImagesListResponse))]
@@ -55,6 +56,11 @@ public class NewContainerImage : DkrCmdlet
         if (!Directory.Exists(directory))
         {
             throw new DirectoryNotFoundException(directory);
+        }
+
+        if (!ShouldProcess(directory, "Build an image from the Dockerfile in this directory"))
+        {
+            return;
         }
 
         WriteVerbose(string.Format("Archiving the contents of {0}", directory));

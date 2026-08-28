@@ -8,6 +8,7 @@ using Docker.PowerShell.Objects;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Request, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ImagesListResponse))]
 [Alias("Pull-ContainerImage")]
@@ -34,6 +35,13 @@ public class RequestContainerImage : DkrCmdlet
     #region Overrides
     protected override async Task ProcessRecordAsync()
     {
+        var requestedTag = Tag ?? "latest";
+
+        if (!ShouldProcess($"{Repository}:{requestedTag}", "Pull image"))
+        {
+            return;
+        }
+
         string repoTag = null;
         bool failed = false;
 
@@ -63,7 +71,7 @@ public class RequestContainerImage : DkrCmdlet
             messageWriter.WriteJsonMessage(message);
         });
 
-        await DkrClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = Repository, Tag = Tag ?? "latest" }, Authorization, progress, CmdletCancellationToken);
+        await DkrClient.Images.CreateImageAsync(new ImagesCreateParameters { FromImage = Repository, Tag = requestedTag }, Authorization, progress, CmdletCancellationToken);
 
         messageWriter.ClearProgress();
         if (repoTag != null)

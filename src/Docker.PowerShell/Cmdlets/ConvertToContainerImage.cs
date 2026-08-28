@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsData.ConvertTo, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Commit-Container")]
 [OutputType(typeof(ImagesListResponse))]
@@ -49,8 +50,13 @@ public class ConvertToContainerImage : MultiContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
-        foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))
+        foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))
         {
+            if (!ShouldProcess(description, "Commit the container's changes to a new image"))
+            {
+                continue;
+            }
+
             var commitResult = await DkrClient.Images.CommitContainerChangesAsync(
                 new CommitContainerChangesParameters(Configuration)
                 {

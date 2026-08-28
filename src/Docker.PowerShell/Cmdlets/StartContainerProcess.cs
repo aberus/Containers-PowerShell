@@ -6,6 +6,7 @@ using Docker.PowerShell.Support;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Start, "ContainerProcess",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 [Alias("Exec-Container")]
@@ -62,6 +63,13 @@ public class StartContainerProcess : SingleContainerOperationCmdlet
     protected override async Task ProcessRecordAsync()
     {
         var id = ContainerIdOrName ?? Container.ID;
+
+        var commandLine = Command == null ? "the image's default command" : string.Join(" ", Command);
+
+        if (!ShouldProcess(id, string.Format("Run \"{0}\" inside the container", commandLine)))
+        {
+            return;
+        }
 
         var execCreate = new ContainerExecCreateParameters
         {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.Add, "ContainerImageTag",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Tag-ContainerImage")]
 public class AddContainerImageTag : ImageOperationCmdlet
@@ -26,8 +27,15 @@ public class AddContainerImageTag : ImageOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
+        var repoTag = string.IsNullOrEmpty(Tag) ? Repository : $"{Repository}:{Tag}";
+
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(id, $"Add the tag {repoTag}"))
+            {
+                continue;
+            }
+
             var tagParams = new ImageTagParameters() { RepositoryName = Repository };
 
             if (!string.IsNullOrEmpty(Tag))

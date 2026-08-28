@@ -36,7 +36,7 @@ function TestInvokeContainerImage
         # Cleanup
         if ($container)
         {
-            $container | Remove-Container
+            $container | Remove-Container -Force
         }
     }
 }
@@ -87,7 +87,7 @@ function TestInvokeWithDetach()
     {
         if ($container)
         {
-            $container | Remove-Container
+            $container | Remove-Container -Force
         }
     }
 }

@@ -36,7 +36,7 @@ function TestNewContainer
         # Cleanup
         if ($container)
         {
-            $container | Remove-Container
+            $container | Remove-Container -Force
         }
     }
 }

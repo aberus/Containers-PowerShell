@@ -7,6 +7,7 @@ using Docker.PowerShell.Objects;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Start, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 public class StartContainer : MultiContainerOperationCmdlet
@@ -39,8 +40,13 @@ public class StartContainer : MultiContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
-        foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))
+        foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))
         {
+            if (!ShouldProcess(description, "Start container"))
+            {
+                continue;
+            }
+
             ContainerAttachParameters attachParams = null;
             if (Attach)
             {

@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.Remove, "Container",
-        DefaultParameterSetName = CommonParameterSetNames.Default)]
+    SupportsShouldProcess = true,
+    DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class RemoveContainer : MultiContainerOperationCmdlet
 {
     #region Parameters
 
     /// <summary>
-    /// Whether or not to force the removal of the container.
+    /// Whether or not to force the removal of the container. It also answers the
+    /// confirmation prompt about discarding the container's writable layer.
     /// </summary>
     [Parameter]
     public SwitchParameter Force { get; set; }
@@ -22,8 +24,17 @@ public class RemoveContainer : MultiContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
-        foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))
+        foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))
         {
+            if (!ShouldProcessAndContinue(
+                    description,
+                    "Remove container",
+                    $"Removing container \"{description}\" discards its writable layer. Anything written inside it that was not committed to an image or kept in a volume goes with it. Remove it?",
+                    Force))
+            {
+                continue;
+            }
+
             await DkrClient.Containers.RemoveContainerAsync(id,
                 new ContainerRemoveParameters() { Force = Force.ToBool() },
                 CmdletCancellationToken

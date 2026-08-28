@@ -7,6 +7,7 @@ using System.Linq;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.New, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 public class NewContainer : CreateContainerCmdlet
@@ -22,6 +23,11 @@ public class NewContainer : CreateContainerCmdlet
 
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(id, "Create a container from image"))
+            {
+                continue;
+            }
+
             var createResult = await ContainerOperations.CreateContainerAsync(
                 id,
                 MemberwiseClone() as CreateContainerCmdlet,

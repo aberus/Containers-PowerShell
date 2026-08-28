@@ -9,6 +9,7 @@ using Tar;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.Copy, "ContainerFile",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class CopyContainerFile : SingleContainerOperationCmdlet
 {
@@ -49,6 +50,11 @@ public class CopyContainerFile : SingleContainerOperationCmdlet
                 Path = Destination ?? "."
             };
 
+            if (!ShouldProcess(ContainerIdOrName, string.Format("Copy {0} into the container", string.Join(", ", hostPaths))))
+            {
+                return;
+            }
+
             var progress = new Progress<string>();
             progress.ProgressChanged += (o, s) => WriteVerbose(string.Format("Sending {0}", s));
 
@@ -62,6 +68,11 @@ public class CopyContainerFile : SingleContainerOperationCmdlet
             var hostPath = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, Destination ?? "");
             foreach (var singlePath in Path)
             {
+                if (!ShouldProcess(hostPath, string.Format("Copy {0} out of container {1}", singlePath, ContainerIdOrName)))
+                {
+                    continue;
+                }
+
                 var p = new ContainerPathStatParameters
                 {
                     Path = singlePath

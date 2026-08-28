@@ -7,6 +7,7 @@ using Docker.PowerShell.Objects;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Invoke, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Run-ContainerImage", "Run-Container")]
 [OutputType(typeof(ContainerListResponse))]
@@ -49,6 +50,11 @@ public class InvokeContainerImage : CreateContainerCmdlet
 
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(id, "Create and start a container from image"))
+            {
+                continue;
+            }
+
             var createResult = await ContainerOperations.CreateContainerAsync(
                 id,
                 MemberwiseClone() as CreateContainerCmdlet,

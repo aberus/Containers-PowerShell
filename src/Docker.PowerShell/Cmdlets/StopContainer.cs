@@ -7,6 +7,7 @@ using System.Linq;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Stop, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 public class StopContainer : MultiContainerOperationCmdlet
@@ -32,8 +33,13 @@ public class StopContainer : MultiContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
-        foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))
+        foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))
         {
+            if (!ShouldProcess(description, Force ? "Kill container" : "Stop container"))
+            {
+                continue;
+            }
+
             if (Force)
             {
                 await DkrClient.Containers.KillContainerAsync(

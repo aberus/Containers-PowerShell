@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Submit, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 [Alias("Push-ContainerImage")]
@@ -35,6 +36,12 @@ public class SubmitContainerImage : DkrCmdlet
     [Parameter]
     public AuthConfig Authorization { get; set; }
 
+    /// <summary>
+    /// Pushes without asking for confirmation that the image should be published.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Force { get; set; }
+
     #region Overrides
     protected override async Task ProcessRecordAsync()
     {
@@ -51,6 +58,15 @@ public class SubmitContainerImage : DkrCmdlet
         else
         {
             repoTag = Image.RepoTags[0];
+        }
+
+        if (!ShouldProcessAndContinue(
+                repoTag,
+                "Push image",
+                $"Pushing \"{repoTag}\" publishes it to its registry, where anyone with access can pull it and this module cannot withdraw it. Push it?",
+                Force))
+        {
+            return;
         }
 
         var messageWriter = new JsonMessageWriter(this);

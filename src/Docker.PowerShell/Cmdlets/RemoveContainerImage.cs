@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.Remove, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class RemoveContainerImage : ImageOperationCmdlet
 {
@@ -24,6 +25,11 @@ public class RemoveContainerImage : ImageOperationCmdlet
     {
         foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(id, "Remove image"))
+            {
+                continue;
+            }
+
             await DkrClient.Images.DeleteImageAsync(id,
                 new ImageDeleteParameters() { Force = Force.ToBool() }
                 );

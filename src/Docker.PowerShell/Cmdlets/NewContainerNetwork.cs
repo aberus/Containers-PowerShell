@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.New, "ContainerNet",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(NetworkResponse))]
 public class NewContainerNet : DkrCmdlet
@@ -43,6 +44,11 @@ public class NewContainerNet : DkrCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
+        if (!ShouldProcess(Name, "Create network"))
+        {
+            return;
+        }
+
         var createResult = await DkrClient.Networks.CreateNetworkAsync(new NetworksCreateParameters()
         {
             Name = Name,

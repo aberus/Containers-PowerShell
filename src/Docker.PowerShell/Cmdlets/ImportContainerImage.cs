@@ -9,6 +9,7 @@ using Docker.PowerShell.Objects;
 namespace Docker.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsData.Import, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Load-ContainerImage")]
 [OutputType(typeof(ImagesListResponse))]
@@ -32,6 +33,11 @@ public class ImportContainerImage : DkrCmdlet
         foreach (var item in FilePath)
         {
             var filePath = Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, item);
+
+            if (!ShouldProcess(filePath, "Import the image saved in this file"))
+            {
+                continue;
+            }
 
             string imageId = null;
             bool failed = false;
