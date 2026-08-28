@@ -5,6 +5,9 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Lists volumes, or gets the ones named.
+/// </summary>
 [Cmdlet(VerbsCommon.Get, "ContainerVolume",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(VolumeResponse))]

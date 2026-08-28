@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Removes containers, as <c>docker rm</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.Remove, "Container",
     SupportsShouldProcess = true,
     DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -22,6 +25,9 @@ public class RemoveContainer : MultiContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Removes each container the caller confirms.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))

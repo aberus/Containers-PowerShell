@@ -6,6 +6,9 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Objects;
 
+/// <summary>
+/// Daemon lookups shared by the volume cmdlets.
+/// </summary>
 internal static class VolumeOperations
 {
     /// <summary>

@@ -1,134 +1,197 @@
----
+﻿---
+document type: cmdlet
 external help file: Docker.PowerShell.dll-Help.xml
-schema: 2.0.0
+HelpUri: https://github.com/Microsoft/Docker-PowerShell/blob/master/src/Docker.PowerShell/Help/Wait-Container.md
+Locale: en-US
+Module Name: Docker
+ms.date: 08/29/2026
+PlatyPS schema version: 2024-05-01
+title: Wait-Container
 ---
 
 # Wait-Container
+
 ## SYNOPSIS
+
 Waits for the given container to shutdown, often indicating that the process run inside the container has completed.
+
 ## SYNTAX
 
 ### Default (Default)
+
 ```
-Wait-Container [-PassThru] [-ContainerIdOrName] <String[]> [-HostAddress <String>]
- [-CertificateLocation <String>] [<CommonParameters>]
+Wait-Container [-ContainerIdOrName] <string[]> [-PassThru] [-HostAddress <string>]
+ [-Context <string>] [-CertificateLocation <string>] [<CommonParameters>]
 ```
 
 ### ContainerObject
+
 ```
-Wait-Container [-PassThru] [-Container] <ContainerListResponse[]> [-HostAddress <String>]
- [-CertificateLocation <String>] [<CommonParameters>]
+Wait-Container [-Container] <ContainerListResponse[]> [-PassThru] [-HostAddress <string>]
+ [-Context <string>] [-CertificateLocation <string>] [<CommonParameters>]
 ```
 
+## ALIASES
+
+This cmdlet has no aliases.
+
 ## DESCRIPTION
+
 Waits for the given container to shutdown, often indicating that the process run inside the container has completed.
+
 ## EXAMPLES
 
 ### Example 1
-```
+
+Waits for the container "1521f" to shut down.
+
+```powershell
 PS C:\> Wait-Container -ContainerIdOrName 1512f
 ```
 
-Waits for the container "1521f" to shut down. 
 ## PARAMETERS
 
 ### -CertificateLocation
+
 The location of the X509 certificate file named "key.pfx" that will be used for authentication with the server.  (Note that certificate authorization work is still in progress and this is likely to change).
 
-
-
-
-
 ```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Container
+
 The container to wait for.
 
-
-
-
-
 ```yaml
-Type: ContainerListResponse[]
-Parameter Sets: ContainerObject
-Aliases: 
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -HostAddress
-The address of the docker daemon to connect to.
-
-
-
-
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PassThru
-Passes the container object through the pipeline. 
-
-
-
-
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+Type: Docker.DotNet.Models.ContainerListResponse[]
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: ContainerObject
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -ContainerIdOrName
+
 The Id or Name of the container to wait for.
 
 ```yaml
-Type: String[]
-Parameter Sets: Default
-Aliases: Name, Id
+Type: System.String[]
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- Name
+- Id
+ParameterSets:
+- Name: Default
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
+### -Context
+
+The name of a docker context to connect through. The context supplies the endpoint and any TLS material, so it is an alternative to giving -HostAddress and -CertificateLocation yourself.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -HostAddress
+
+The address of the docker daemon to connect to.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -PassThru
+
+Passes the container object through the pipeline.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### System.String[]
+
 Docker.DotNet.Models.ContainerListResponse[]
+
 ## OUTPUTS
 
 ### Docker.DotNet.Models.ContainerListResponse
@@ -136,11 +199,4 @@ Docker.DotNet.Models.ContainerListResponse[]
 ## NOTES
 
 ## RELATED LINKS
-
-[Online Version:](https://github.com/Microsoft/Docker-PowerShell/blob/master/src/Docker.PowerShell/Help/Wait-Container.md)
-
-
-
-
-
 

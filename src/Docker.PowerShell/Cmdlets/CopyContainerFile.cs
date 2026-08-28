@@ -8,22 +8,39 @@ using Tar;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Copies files between the host and a container, as <c>docker cp</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.Copy, "ContainerFile",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class CopyContainerFile : SingleContainerOperationCmdlet
 {
+    /// <summary>
+    /// The files to copy: paths on the host when -ToContainer is given, paths inside the
+    /// container otherwise.
+    /// </summary>
     [Parameter(Mandatory = true, Position = 1)]
     [ValidateNotNullOrEmpty]
     public string[] Path { get; set; }
 
+    /// <summary>
+    /// Where to put the copies. Defaults to the container's working directory, or to the
+    /// current directory on the host.
+    /// </summary>
     [Parameter]
     [ValidateNotNullOrEmpty]
     public string Destination { get; set; }
 
+    /// <summary>
+    /// Copies into the container instead of out of it.
+    /// </summary>
     [Parameter]
     public SwitchParameter ToContainer { get; set; }
 
+    /// <summary>
+    /// Copies the files in whichever direction was asked for.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         if (Container != null)

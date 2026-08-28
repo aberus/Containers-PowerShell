@@ -22,14 +22,24 @@ internal static class CommonParameterSetNames
     public const string AllImages = "AllImages";
 }
 
+/// <summary>
+/// Base class for this module's cmdlets. Supplies the parameters that choose a daemon, a
+/// client built on first use, and an async ProcessRecord that runs on the pipeline thread.
+/// </summary>
 public abstract class DkrCmdlet : PSCmdlet
 {
     #region Private members
 
     private CancellationTokenSource cancelSignal = new CancellationTokenSource();
 
+    /// <summary>
+    /// Signalled when the pipeline stops, so calls to the daemon can be abandoned.
+    /// </summary>
     protected CancellationToken CmdletCancellationToken => cancelSignal.Token;
 
+    /// <summary>
+    /// The client for the daemon named by the connection parameters, built on first use.
+    /// </summary>
     protected DockerClient DkrClient
     {
         get
@@ -72,7 +82,7 @@ public abstract class DkrCmdlet : PSCmdlet
     #region Confirmation
 
     /// <summary>
-    /// The "Yes to All" / "No to All" answers to <see cref="ShouldContinue"/>. They live on
+    /// The "Yes to All" / "No to All" answers to <c>ShouldContinue</c>. They live on
     /// the cmdlet rather than at the call site so that an answer given for one pipeline item
     /// still applies to the rest of the invocation.
     /// </summary>
@@ -117,6 +127,10 @@ public abstract class DkrCmdlet : PSCmdlet
         cancelSignal.Cancel();
     }
 
+    /// <summary>
+    /// Runs <see cref="ProcessRecordAsync"/> on the pipeline thread and reports anything it
+    /// throws as an error, so that one bad input does not end the whole pipeline.
+    /// </summary>
     protected sealed override void ProcessRecord()
     {
         try
@@ -130,8 +144,14 @@ public abstract class DkrCmdlet : PSCmdlet
         }
     }
 
+    /// <summary>
+    /// Does the cmdlet's work for one pipeline input.
+    /// </summary>
     protected abstract Task ProcessRecordAsync();
 
+    /// <summary>
+    /// Cleans up when the pipeline stops. Overridden by cmdlets that leave something running.
+    /// </summary>
     protected virtual Task StopProcessingAsync()
     {
         return Task.CompletedTask;

@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Lists images, or gets the ones named.
+/// </summary>
 [Cmdlet(VerbsCommon.Get, "ContainerImage",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ImagesListResponse))]
@@ -14,7 +17,7 @@ public class GetContainerImage : DkrCmdlet
 
     /// <summary>
     /// The specific image name to get.
-    /// </summery>
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         ValueFromPipeline = true,
                Position = 0)]

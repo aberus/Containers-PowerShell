@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Stops running containers, as <c>docker stop</c> does, or kills them with -Force.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Stop, "Container",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -31,6 +34,9 @@ public class StopContainer : MultiContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Stops or kills each container.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))

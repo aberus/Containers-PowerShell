@@ -4,6 +4,10 @@ using System.IO;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Writes images to a tar archive on disk, as <c>docker save</c> does. Aliased as
+/// Save-ContainerImage.
+/// </summary>
 [Cmdlet(VerbsData.Export, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -12,6 +16,9 @@ public class ExportContainerImage : ImageOperationCmdlet
 {
     #region Parameters
 
+    /// <summary>
+    /// The file to write the archive to, relative to the current directory.
+    /// </summary>
     [Parameter(Position = 1,
         Mandatory = true)]
     [ValidateNotNullOrEmpty]
@@ -27,6 +34,9 @@ public class ExportContainerImage : ImageOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Saves the given images into the destination file.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var filePath = Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, DestinationFilePath);

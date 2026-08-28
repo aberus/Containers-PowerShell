@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Commits a container's current state to a new image, as <c>docker commit</c> does.
+/// Aliased as Commit-Container.
+/// </summary>
 [Cmdlet(VerbsData.ConvertTo, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -48,6 +52,9 @@ public class ConvertToContainerImage : MultiContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Commits each container and writes the image it produced.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))

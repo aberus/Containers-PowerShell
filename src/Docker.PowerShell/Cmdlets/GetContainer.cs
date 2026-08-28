@@ -5,11 +5,17 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Lists containers, or gets the ones named.
+/// </summary>
 [Cmdlet(VerbsCommon.Get, "Container",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
 public class GetContainer : DkrCmdlet
 {
+    /// <summary>
+    /// The names or ids of the containers to get. Every container is listed when omitted.
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         ValueFromPipeline = true,
                Position = 0)]

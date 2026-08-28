@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Adds a repository and tag to an existing image, as <c>docker tag</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.Add, "ContainerImageTag",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -12,11 +15,17 @@ public class AddContainerImageTag : ImageOperationCmdlet
 {
     #region Parameters
 
+    /// <summary>
+    /// The repository name to tag the image with.
+    /// </summary>
     [Parameter(Position = 1,
                Mandatory = true)]
     [ValidateNotNullOrEmpty]
     public string Repository { get; set; }
 
+    /// <summary>
+    /// The tag to apply. The daemon chooses when this is omitted.
+    /// </summary>
     [Parameter(Position = 2)]
     [ValidateNotNullOrEmpty]
     public string Tag { get; set; }
@@ -25,6 +34,9 @@ public class AddContainerImageTag : ImageOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Tags each of the given images.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var repoTag = string.IsNullOrEmpty(Tag) ? Repository : $"{Repository}:{Tag}";

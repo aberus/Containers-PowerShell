@@ -8,6 +8,10 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Loads images from a tar archive written by Export-ContainerImage, as <c>docker load</c>
+/// does. Aliased as Load-ContainerImage.
+/// </summary>
 [Cmdlet(VerbsData.Import, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -19,6 +23,9 @@ public class ImportContainerImage : DkrCmdlet
 
     #region Parameters
 
+    /// <summary>
+    /// The archive files to load, relative to the current directory.
+    /// </summary>
     [Parameter(Position = 0,
         Mandatory = true)]
     [ValidateNotNullOrEmpty]
@@ -28,6 +35,9 @@ public class ImportContainerImage : DkrCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Loads each archive and writes the image it produced.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var item in FilePath)

@@ -6,11 +6,18 @@ using Docker.PowerShell.Support;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Attaches the console to a running container, as <c>docker attach</c> does. Aliased as
+/// Attach-Container.
+/// </summary>
 [Cmdlet(VerbsCommon.Enter, "ContainerSession",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Attach-Container")]
 public class EnterContainerSession : SingleContainerOperationCmdlet
 {
+    /// <summary>
+    /// Attaches to the container and pumps its streams until the session ends.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var id = ContainerIdOrName ?? Container.ID;

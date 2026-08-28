@@ -11,15 +11,20 @@ using Docker.PowerShell.Support;
 
 namespace Docker.PowerShell.Objects;
 
+/// <summary>
+/// Daemon calls shared by the container cmdlets: creating containers, looking them up by
+/// id or name, and running them with their streams attached.
+/// </summary>
 internal static class ContainerOperations
 {
     /// <summary>
     /// Creates the container
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cmdlet"></param>
-    /// <param name="dkrClient"></param>
-    /// <returns></returns>
+    /// <param name="id">The image identifier to retrieve.</param>
+    /// <param name="cmdlet">The cmdlet that is requesting the container creation.</param>
+    /// <param name="dkrClient">The client to request the image from.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The single container object matching the id.</returns>
     internal static async Task<CreateContainerResponse> CreateContainerAsync(
         string id,
         CreateContainerCmdlet cmdlet,
@@ -81,6 +86,10 @@ internal static class ContainerOperations
     /// <summary>
     /// Pulls an image that a container create depends on, reporting progress through the cmdlet.
     /// </summary>
+    /// <param name="image">The image to pull.</param>
+    /// <param name="cmdlet">The cmdlet that is requesting the image pull.</param>
+    /// <param name="dkrClient">The client to request the image from.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     private static async Task PullImageForCreateAsync(
         string image,
         PSCmdlet cmdlet,
@@ -108,6 +117,8 @@ internal static class ContainerOperations
     /// that precedes the final path segment is treated as a registry port, not a tag, and
     /// digest references (repo@sha256:...) are passed through untouched.
     /// </summary>
+    /// <param name="image">The image reference to split.</param>
+    /// <returns>A tuple containing the repository and tag components.</returns>
     private static (string fromImage, string tag) SplitImageReference(string image)
     {
         if (image.Contains('@'))
@@ -124,6 +135,12 @@ internal static class ContainerOperations
         return (image, "latest");
     }
 
+    /// <summary>
+    /// Finds the containers whose id starts with the given text.
+    /// </summary>
+    /// <param name="id">The container ID to search for.</param>
+    /// <param name="dkrClient">The client to request the container list from.</param>
+    /// <returns>A list of containers whose ID starts with the given text.</returns>
     internal static Task<IList<ContainerListResponse>> GetContainersByIdAsync(string id, DockerClient dkrClient)
     {
         return dkrClient.Containers.ListContainersAsync(new ContainersListParameters
@@ -140,6 +157,12 @@ internal static class ContainerOperations
         });
     }
 
+    /// <summary>
+    /// Finds the containers carrying the given name.
+    /// </summary>
+    /// <param name="name">The container name to search for.</param>
+    /// <param name="dkrClient">The client to request the container list from.</param>
+    /// <returns>A list of containers whose name matches the given text.</returns>
     internal static Task<IList<ContainerListResponse>> GetContainersByNameAsync(string name, DockerClient dkrClient)
     {
         return dkrClient.Containers.ListContainersAsync(new ContainersListParameters
@@ -209,6 +232,14 @@ internal static class ContainerOperations
         }
     }
 
+    /// <summary>
+    /// Starts a container, attaching to its streams first when attach parameters are given so
+    /// that no early output is missed.
+    /// </summary>
+    /// <param name="client">The Docker client.</param>
+    /// <param name="containerId">The container ID.</param>
+    /// <param name="attachParams">The attach parameters.</param>
+    /// <param name="isTTY">Indicates whether the container is running in TTY mode.</param>
     internal static async Task StartContainerAsync(
         DockerClient client,
         string containerId,

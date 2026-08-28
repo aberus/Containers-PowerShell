@@ -6,6 +6,9 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Removes volumes, as <c>docker volume rm</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.Remove, "ContainerVolume",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -46,6 +49,9 @@ public class RemoveContainerVolume : DkrCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Removes each volume the caller confirms.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var name in ParameterResolvers.GetVolumeNames(Volume, Name))

@@ -4,6 +4,9 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Shared parameters for the cmdlets that create a container from an image.
+/// </summary>
 public abstract class CreateContainerCmdlet : ImageOperationCmdlet
 {
     #region Parameters
@@ -16,6 +19,9 @@ public abstract class CreateContainerCmdlet : ImageOperationCmdlet
     [ValidateNotNullOrEmpty]
     public string Name { get; set; }
 
+    /// <summary>
+    /// The port mappings to publish, in the docker CLI's <c>host:container</c> form.
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default)]
     [Parameter(ParameterSetName = CommonParameterSetNames.ImageObject)]
     [ValidateNotNullOrEmpty]

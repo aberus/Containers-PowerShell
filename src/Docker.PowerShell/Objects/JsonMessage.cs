@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace Docker.PowerShell.Objects;
 
+/// <summary>
+/// One message from a daemon progress stream, as sent while building, pulling, or pushing.
+/// </summary>
 internal class JsonMessage
 {
     [JsonPropertyName("stream")]
@@ -29,6 +32,9 @@ internal class JsonMessage
     public JsonError Error { get; set; }
 }
 
+/// <summary>
+/// How far a single layer's transfer has got.
+/// </summary>
 internal class JsonProgress
 {
     [JsonPropertyName("current")]
@@ -41,6 +47,9 @@ internal class JsonProgress
     public long Start { get; set; }
 }
 
+/// <summary>
+/// An error reported partway through a progress stream.
+/// </summary>
 internal class JsonError
 {
     [JsonPropertyName("code")]

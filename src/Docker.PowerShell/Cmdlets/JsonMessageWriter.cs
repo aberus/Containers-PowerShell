@@ -6,13 +6,23 @@ using System.Text;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Renders the daemon's stream of JSON status messages as PowerShell progress bars and
+/// host output.
+/// </summary>
 internal class JsonMessageWriter
 {
+    /// <summary>
+    /// Creates a writer that reports through the given cmdlet.
+    /// </summary>
     public JsonMessageWriter(PSCmdlet cmdlet)
     {
         _cmdlet = cmdlet;
     }
 
+    /// <summary>
+    /// Reports one message from the daemon.
+    /// </summary>
     public void WriteJsonMessage(JSONMessage message)
     {
         if (message.Error != null)
@@ -77,6 +87,9 @@ internal class JsonMessageWriter
         }
     }
 
+    /// <summary>
+    /// Completes any progress bars still on screen.
+    /// </summary>
     public void ClearProgress()
     {
         foreach (var activity in _idToActivity)

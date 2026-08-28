@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Builds an image from a Dockerfile, as <c>docker build</c> does. Aliased as
+/// Build-ContainerImage.
+/// </summary>
 [Cmdlet(VerbsCommon.New, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -20,27 +24,49 @@ public class NewContainerImage : DkrCmdlet
 
     #region Parameters
 
+    /// <summary>
+    /// The directory holding the Dockerfile and its build context. Defaults to the current
+    /// directory.
+    /// </summary>
     [Parameter(Position = 0)]
     [ValidateNotNullOrEmpty]
     public string Path { get; set; }
 
+    /// <summary>
+    /// The repository name to give the built image.
+    /// </summary>
     [Parameter]
     [ValidateNotNullOrEmpty]
     public string Repository { get; set; }
 
+    /// <summary>
+    /// The tag to give the built image. Requires -Repository.
+    /// </summary>
     [Parameter]
     [ValidateNotNullOrEmpty]
     public string Tag { get; set; }
 
+    /// <summary>
+    /// Builds every layer afresh instead of reusing cached ones.
+    /// </summary>
     [Parameter]
     public SwitchParameter SkipCache { get; set; }
 
+    /// <summary>
+    /// Removes the intermediate containers even when the build fails.
+    /// </summary>
     [Parameter]
     public SwitchParameter ForceRemoveIntermediateContainers { get; set; }
 
+    /// <summary>
+    /// Keeps the intermediate containers after a successful build.
+    /// </summary>
     [Parameter]
     public SwitchParameter PreserveIntermediateContainers { get; set; }
 
+    /// <summary>
+    /// The registry credentials to authenticate with.
+    /// </summary>
     [Parameter]
     public AuthConfig Authorization { get; set; }
 
@@ -48,6 +74,9 @@ public class NewContainerImage : DkrCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Uploads the build context, reports the daemon's progress, and writes the built image.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var directory = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, Path ?? "");

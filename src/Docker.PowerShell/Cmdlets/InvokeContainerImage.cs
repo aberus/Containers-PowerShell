@@ -6,6 +6,10 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Creates a container from an image and runs it, as <c>docker run</c> does. Aliased as
+/// Run-ContainerImage and Run-Container.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Invoke, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -110,6 +114,9 @@ public class InvokeContainerImage : CreateContainerCmdlet
         }
     }
 
+    /// <summary>
+    /// Stops the container this cmdlet started when the pipeline is interrupted.
+    /// </summary>
     protected override async Task StopProcessingAsync()
     {
         if (!string.IsNullOrEmpty(createdId))

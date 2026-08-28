@@ -6,6 +6,10 @@ using System.Linq;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Waits for containers to exit and reports a non-zero exit code as an error, as
+/// <c>docker wait</c> does.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Wait, "Container",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ContainerListResponse))]
@@ -24,6 +28,9 @@ public class WaitContainer : MultiContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Waits for each container and throws when one exits with a non-zero code.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var id in ParameterResolvers.GetContainerIds(Container, ContainerIdOrName))

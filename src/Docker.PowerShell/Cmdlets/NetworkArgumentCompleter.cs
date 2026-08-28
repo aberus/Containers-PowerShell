@@ -7,6 +7,9 @@ using System.Management.Automation.Language;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Completes network names and ids by asking the daemon what exists.
+/// </summary>
 public class NetworkArgumentCompleter : IArgumentCompleter
 {
     /// <summary>
@@ -15,6 +18,9 @@ public class NetworkArgumentCompleter : IArgumentCompleter
     /// </summary>
     private static readonly string[] BuiltInDrivers = ["bridge", "host", "ipvlan", "macvlan", "none", "overlay"];
 
+    /// <summary>
+    /// Returns the completions that start with the text typed so far.
+    /// </summary>
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,
                                                           string parameterName,
                                                           string wordToComplete,

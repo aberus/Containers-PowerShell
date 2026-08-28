@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Creates a container from an image without starting it, as <c>docker create</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.New, "Container",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]

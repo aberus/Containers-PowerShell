@@ -8,6 +8,9 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Completes volume names by asking the daemon what exists.
+/// </summary>
 public class VolumeArgumentCompleter : IArgumentCompleter
 {
     /// <summary>
@@ -16,6 +19,9 @@ public class VolumeArgumentCompleter : IArgumentCompleter
     /// </summary>
     private static readonly string[] BuiltInDrivers = ["local"];
 
+    /// <summary>
+    /// Returns the completions that start with the text typed so far.
+    /// </summary>
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,
                                                           string parameterName,
                                                           string wordToComplete,

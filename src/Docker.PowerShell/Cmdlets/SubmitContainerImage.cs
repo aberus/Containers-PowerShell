@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Pushes an image to a registry, as <c>docker push</c> does. Aliased as
+/// Push-ContainerImage.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Submit, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -14,6 +18,9 @@ namespace Docker.PowerShell.Cmdlets;
 [Alias("Push-ContainerImage")]
 public class SubmitContainerImage : DkrCmdlet
 {
+    /// <summary>
+    /// The repository and tag to push.
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         ValueFromPipeline = true,
                Position = 0,
@@ -23,6 +30,9 @@ public class SubmitContainerImage : DkrCmdlet
     [Alias("ImageName", "ImageId")]
     public string ImageIdOrName { get; set; }
 
+    /// <summary>
+    /// The image to push. It must carry exactly one repository and tag.
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.ImageObject,
         ValueFromPipeline = true,
                Position = 0,
@@ -30,9 +40,15 @@ public class SubmitContainerImage : DkrCmdlet
     [ValidateNotNullOrEmpty]
     public ImagesListResponse Image { get; set; }
 
+    /// <summary>
+    /// Writes the pushed image once the push finishes.
+    /// </summary>
     [Parameter]
     public SwitchParameter PassThru { get; set; }
 
+    /// <summary>
+    /// The registry credentials to authenticate with.
+    /// </summary>
     [Parameter]
     public AuthConfig Authorization { get; set; }
 
@@ -43,6 +59,9 @@ public class SubmitContainerImage : DkrCmdlet
     public SwitchParameter Force { get; set; }
 
     #region Overrides
+    /// <summary>
+    /// Pushes the image and reports the daemon's progress.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         string repoTag = null;

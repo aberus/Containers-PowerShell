@@ -5,6 +5,9 @@ using Docker.DotNet.X509;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Builds Docker clients from the connection parameters the cmdlets share.
+/// </summary>
 public static class DockerFactory
 {
     /// <summary>
@@ -18,7 +21,7 @@ public static class DockerFactory
     /// default endpoint (npipe on Windows, unix socket on Linux/macOS).</item>
     /// </list>
     /// An <c>ssh://</c> endpoint from any of those sources is served by
-    /// <see cref="Docker.DotNet.Ssh"/>, which tunnels through the local ssh client.
+    /// <c>Docker.DotNet.Ssh</c>, which tunnels through the local ssh client.
     /// TLS material for remote hosts comes from the docker context, so
     /// <paramref name="certificateLocation"/> is currently unused (the 4.x
     /// <see cref="DockerClientBuilder"/> exposes no per-certificate hook).
@@ -49,6 +52,10 @@ public static class DockerFactory
 
 
 
+    /// <summary>
+    /// Creates a client from the parameters bound so far on the command line, for argument
+    /// completers that must reach the daemon while the user is still typing.
+    /// </summary>
     public static DockerClient CreateClient(IDictionary fakeBoundParameters)
     {
         var hostAddress = fakeBoundParameters["HostAddress"] as string;

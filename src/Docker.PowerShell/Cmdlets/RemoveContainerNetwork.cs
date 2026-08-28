@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Removes networks, as <c>docker network rm</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.Remove, "ContainerNet",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -20,6 +23,9 @@ public class RemoveContainerNet : NetworkOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Removes each network the caller confirms.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var id in ParameterResolvers.GetNetworkIds(Network, Id))

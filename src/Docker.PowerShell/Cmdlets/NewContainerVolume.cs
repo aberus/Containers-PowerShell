@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Creates a volume, as <c>docker volume create</c> does.
+/// </summary>
 [Cmdlet(VerbsCommon.New, "ContainerVolume",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -45,6 +48,9 @@ public class NewContainerVolume : DkrCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Creates the volume and writes it.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         if (!ShouldProcess(Name ?? "(name chosen by the daemon)", "Create volume"))

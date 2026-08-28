@@ -4,6 +4,10 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Turns the object-or-string parameter pairs the cmdlets accept into the ids the daemon
+/// wants, and into text that names a resource to a person.
+/// </summary>
 internal static class ParameterResolvers
 {
     /// <summary>
@@ -25,7 +29,7 @@ internal static class ParameterResolvers
     /// <summary>
     /// Uses either the list of IDs, or gets the list of IDs from the list of containers.
     /// </summary>
-    /// <param name="conatiners">The list of container objects to get values from.</param>
+    /// <param name="containers">The list of container objects to get values from.</param>
     /// <param name="ids">The list of ids.</param>
     /// <returns>List of IDs to process.</returns>
     internal static IEnumerable<string> GetContainerIds(ContainerListResponse[] containers, string[] ids)

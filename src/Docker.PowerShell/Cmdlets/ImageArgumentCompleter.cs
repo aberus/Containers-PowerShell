@@ -8,10 +8,16 @@ using System;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Completes image names and ids by asking the daemon what exists.
+/// </summary>
 public class ImageArgumentCompleter : IArgumentCompleter
 {
     private const string LatestSuffix = ":latest";
 
+    /// <summary>
+    /// Returns the completions that start with the text typed so far.
+    /// </summary>
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,
                                                           string parameterName,
                                                           string wordToComplete,

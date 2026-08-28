@@ -5,6 +5,11 @@ using System;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Builds the host side of a container's configuration, for passing to the
+/// -HostConfiguration parameter of the cmdlets that create containers. It only assembles
+/// an object; nothing is sent to the daemon.
+/// </summary>
 [Cmdlet(VerbsCommon.New, "ContainerHostConfig",
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(HostConfig))]
@@ -12,50 +17,95 @@ public class NewContainerHostConfig : DkrCmdlet
 {
     #region Parameters
 
+    /// <summary>
+    /// The volume and bind mounts, in the docker CLI's <c>source:destination[:options]</c> form.
+    /// </summary>
     [Parameter(Position = 0)]
     public string[] Binds { get; set; }
 
+    /// <summary>
+    /// The network to attach the container to.
+    /// </summary>
     [Parameter]
     public string NetworkMode { get; set; }
 
+    /// <summary>
+    /// Publishes every exposed port to a port the host picks.
+    /// </summary>
     [Parameter]
     public SwitchParameter PublishAllPorts { get; set; }
 
+    /// <summary>
+    /// Gives the container extended privileges on the host.
+    /// </summary>
     [Parameter]
     public SwitchParameter Privileged { get; set; }
 
     // Dns/DnsSearch are not present on this HostConfig version; omit to keep compatibility
 
+    /// <summary>
+    /// Linux capabilities to add to the container.
+    /// </summary>
     [Parameter]
     public string[] CapAdd { get; set; }
 
+    /// <summary>
+    /// Linux capabilities to drop from the container.
+    /// </summary>
     [Parameter]
     public string[] CapDrop { get; set; }
 
+    /// <summary>
+    /// Extra entries for the container's hosts file, as <c>hostname:ip</c>.
+    /// </summary>
     [Parameter]
     public string[] ExtraHosts { get; set; }
 
+    /// <summary>
+    /// Containers whose volumes this container should mount.
+    /// </summary>
     [Parameter]
     public string[] VolumesFrom { get; set; }
 
+    /// <summary>
+    /// When to restart the container: no, always, unless-stopped, or on-failure.
+    /// </summary>
     [Parameter]
     public string RestartPolicyName { get; set; }
 
+    /// <summary>
+    /// How many times to retry under the on-failure restart policy.
+    /// </summary>
     [Parameter]
     public int RestartPolicyMaximumRetryCount { get; set; }
 
+    /// <summary>
+    /// How many CPUs the container may use, as a fraction of the host's.
+    /// </summary>
     [Parameter]
     public double Cpus { get; set; }
 
+    /// <summary>
+    /// The memory limit, with an optional unit suffix such as "512m" or "2g".
+    /// </summary>
     [Parameter]
     public string Memory { get; set; }
 
+    /// <summary>
+    /// The combined memory and swap limit, in the same form as -Memory.
+    /// </summary>
     [Parameter]
     public string MemorySwap { get; set; }
 
+    /// <summary>
+    /// Removes the container as soon as it exits.
+    /// </summary>
     [Parameter]
     public SwitchParameter AutoRemove { get; set; }
 
+    /// <summary>
+    /// Host devices to expose, as <c>host[:container[:permissions]]</c>.
+    /// </summary>
     [Parameter]
     public string[] Devices { get; set; }
 
@@ -63,6 +113,9 @@ public class NewContainerHostConfig : DkrCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Assembles the host configuration and writes it.
+    /// </summary>
     protected override Task ProcessRecordAsync()
     {
         RestartPolicy restartPolicy = null;

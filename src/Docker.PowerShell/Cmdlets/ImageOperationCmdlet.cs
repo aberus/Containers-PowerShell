@@ -3,12 +3,16 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Base class for cmdlets that act on one or more images, named either by string or by
+/// object.
+/// </summary>
 public abstract class ImageOperationCmdlet : DkrCmdlet
 {
     #region Parameters
 
     /// <summary>
-    /// The Ids for which containers to remove.
+    /// The names or ids of the images to act on.
     /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         ValueFromPipeline = true,
@@ -20,7 +24,7 @@ public abstract class ImageOperationCmdlet : DkrCmdlet
     public string[] ImageIdOrName { get; set; }
 
     /// <summary>
-    /// The containers to remove.
+    /// The image objects to act on.
     /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.ImageObject,
         ValueFromPipeline = true,

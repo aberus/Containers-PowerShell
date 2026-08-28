@@ -7,6 +7,10 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Pulls an image from a registry, as <c>docker pull</c> does. Aliased as
+/// Pull-ContainerImage.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Request, "ContainerImage",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -17,6 +21,9 @@ public class RequestContainerImage : DkrCmdlet
     private const string StatusUpToDate = "Status: Image is up to date for ";
     private const string StatusDownloadedNewer = "Status: Downloaded newer image for ";
 
+    /// <summary>
+    /// The repository to pull from.
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         ValueFromPipeline = true,
         Mandatory = true,
@@ -24,15 +31,24 @@ public class RequestContainerImage : DkrCmdlet
     [ValidateNotNullOrEmpty]
     public string Repository { get; set; }
 
+    /// <summary>
+    /// The tag to pull. Defaults to "latest".
+    /// </summary>
     [Parameter(ParameterSetName = CommonParameterSetNames.Default,
         Position = 1)]
     [ValidateNotNullOrEmpty]
     public string Tag { get; set; }
 
+    /// <summary>
+    /// The registry credentials to authenticate with.
+    /// </summary>
     [Parameter]
     public AuthConfig Authorization { get; set; }
 
     #region Overrides
+    /// <summary>
+    /// Pulls the image, reports the daemon's progress, and writes the result.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var requestedTag = Tag ?? "latest";

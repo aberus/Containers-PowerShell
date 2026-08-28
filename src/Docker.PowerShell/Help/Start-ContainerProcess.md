@@ -1,198 +1,354 @@
----
+﻿---
+document type: cmdlet
 external help file: Docker.PowerShell.dll-Help.xml
-online version: https://github.com/Microsoft/Docker-PowerShell/tree/master/src/Docker.PowerShell/en-us/
-schema: 2.0.0
+HelpUri: https://github.com/Microsoft/Docker-PowerShell/tree/master/src/Docker.PowerShell/en-us/
+Locale: en-US
+Module Name: Docker
+ms.date: 08/29/2026
+PlatyPS schema version: 2024-05-01
+title: Start-ContainerProcess
 ---
 
 # Start-ContainerProcess
+
 ## SYNOPSIS
-Starts a new process with the given command in the specified container.
-Aliased as "Exec-Container".
+
+Starts a new process with the given command in the specified container. Aliased as "Exec-Container".
+
 ## SYNTAX
 
 ### Default (Default)
+
 ```
-Start-ContainerProcess [[-Command] <String[]>] [-Detached] [-Input] [-Terminal] [-Privileged] [-User <String>]
- [-ContainerIdOrName] <String> [-HostAddress <String>] [-CertificateLocation <String>] [<CommonParameters>]
+Start-ContainerProcess [-ContainerIdOrName] <string> [[-Command] <string[]>] [-Detached] [-Input]
+ [-Terminal] [-Privileged] [-User <string>] [-HostAddress <string>] [-Context <string>]
+ [-CertificateLocation <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### ContainerObject
+
 ```
-Start-ContainerProcess [[-Command] <String[]>] [-Detached] [-Input] [-Terminal] [-Privileged] [-User <String>]
- [-Container] <ContainerListResponse> [-HostAddress <String>] [-CertificateLocation <String>]
- [<CommonParameters>]
+Start-ContainerProcess [-Container] <ContainerListResponse> [[-Command] <string[]>] [-Detached]
+ [-Input] [-Terminal] [-Privileged] [-User <string>] [-HostAddress <string>] [-Context <string>]
+ [-CertificateLocation <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+## ALIASES
+
+Exec-Container
+
 ## DESCRIPTION
-Starts a new process with the given command in the specified container.
-Aliased as "Exec-Container".
+
+Starts a new process with the given command in the specified container. Aliased as "Exec-Container".
+
 ## EXAMPLES
 
 ### Example 1
-```
+
+Starts the command "c:\myTest.exe" in the container named "myContainer".
+
+```powershell
 PS C:\> Start-ContainerProcess -ContainerIdOrName myContainer -Command "c:\myTest.exe"
 ```
 
-Starts the command "c:\myTest.exe" in the container named "myContainer".
 ## PARAMETERS
 
 ### -CertificateLocation
+
 The location of the X509 certificate file named "key.pfx" that will be used for authentication with the server.  (Note that certificate authorization work is still in progress and this is likely to change).
 
 ```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Command
-The command to be run as a new process in the container. 
+
+The command to be run as a new process in the container.
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases: 
+Type: System.String[]
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: Default
+  Position: 1
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: true
+- Name: ContainerObject
+  Position: 1
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: true
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
-Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+### -Confirm
+
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- cf
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -Container
+
 The container in which the process will be started.
 
 ```yaml
-Type: ContainerListResponse
-Parameter Sets: ContainerObject
-Aliases: 
-
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -Detached
-If specified, just the container process object will be returned and the process will run asynchronously. Otherwise, STDOUT/STDERR will be connected and output of the command will be displayed.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -HostAddress
-The address of the docker daemon to connect to.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Privileged
-If specified, the process will be started in privileged mode.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -User
-A custom user name under which the process will be created.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Terminal
-If specified, terminal emulation will be used when starting the process.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Input
-Indicates that the STDIN of the process should be kept open.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
+Type: Docker.DotNet.Models.ContainerListResponse
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: ContainerObject
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### -ContainerIdOrName
+
 The Id or Name of the container to start the command in.
 
 ```yaml
-Type: String
-Parameter Sets: Default
-Aliases: Name, Id
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- Name
+- Id
+ParameterSets:
+- Name: Default
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
-Required: True
-Position: 0
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
+### -Context
+
+The name of a docker context to connect through. The context supplies the endpoint and any TLS material, so it is an alternative to giving -HostAddress and -CertificateLocation yourself.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Detached
+
+If specified, just the container process object will be returned and the process will run asynchronously. Otherwise, STDOUT/STDERR will be connected and output of the command will be displayed.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -HostAddress
+
+The address of the docker daemon to connect to.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Input
+
+Indicates that the STDIN of the process should be kept open.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Privileged
+
+If specified, the process will be started in privileged mode.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Terminal
+
+If specified, terminal emulation will be used when starting the process.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -User
+
+A custom user name under which the process will be created.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -WhatIf
+
+Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- wi
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### System.String[]
-System.String
-Docker.DotNet.Models.ContainerListResponse
+
+System.String Docker.DotNet.Models.ContainerListResponse
+
 ## OUTPUTS
 
 ### Docker.DotNet.Models.ContainerListResponse
@@ -201,4 +357,3 @@ Docker.DotNet.Models.ContainerListResponse
 
 ## RELATED LINKS
 
-[Online Version:](https://github.com/Microsoft/Docker-PowerShell/blob/master/src/Docker.PowerShell/Help/Start-ContainerProcess.md)

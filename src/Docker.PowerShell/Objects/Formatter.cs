@@ -4,8 +4,15 @@ using Docker.DotNet.Models;
 
 namespace Docker.PowerShell.Objects
 {
+    /// <summary>
+    /// Formatting helpers used by the module's format file to render containers and images.
+    /// </summary>
     public static class Formatter
     {
+        /// <summary>
+        /// Renders a container's port bindings the way the docker CLI does, collapsing runs of
+        /// consecutive ports into ranges.
+        /// </summary>
         public static string PortsToString(this IList<PortSummary> ports)
         {
             if (ports.Count == 0)
@@ -85,10 +92,20 @@ namespace Docker.PowerShell.Objects
             return $"{group}/{(parts.Length > 1 ? parts[1] : groupType)}";
         }
 
+        /// <summary>
+        /// Orders port bindings by private port, address, public port, and protocol, so that
+        /// consecutive ports end up adjacent.
+        /// </summary>
         public class PortComparer : IComparer<PortSummary>
         {
+            /// <summary>
+            /// The shared instance of the comparer.
+            /// </summary>
             public static PortComparer Instance { get; } = new PortComparer();
 
+            /// <summary>
+            /// Compares two port bindings.
+            /// </summary>
             public int Compare(PortSummary x, PortSummary y)
             {
                 if (x.PrivatePort != y.PrivatePort)
@@ -112,6 +129,9 @@ namespace Docker.PowerShell.Objects
 
         private const int shortLen = 12;
 
+        /// <summary>
+        /// Shortens an id to the 12 characters the docker CLI shows, dropping any algorithm prefix.
+        /// </summary>
         public static string TruncateId(string id)
         {
             int index = id.IndexOf(':');

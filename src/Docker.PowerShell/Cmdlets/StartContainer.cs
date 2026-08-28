@@ -6,6 +6,9 @@ using Docker.PowerShell.Objects;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Starts existing containers, as <c>docker start</c> does.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Start, "Container",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -38,6 +41,9 @@ public class StartContainer : MultiContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Starts each container, optionally attaching to its streams.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         foreach (var (id, description) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName))

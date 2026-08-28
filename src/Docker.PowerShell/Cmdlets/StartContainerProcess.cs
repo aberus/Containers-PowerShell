@@ -5,6 +5,10 @@ using Docker.PowerShell.Support;
 
 namespace Docker.PowerShell.Cmdlets;
 
+/// <summary>
+/// Runs a command inside a running container, as <c>docker exec</c> does. Aliased as
+/// Exec-Container.
+/// </summary>
 [Cmdlet(VerbsLifecycle.Start, "ContainerProcess",
         SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
@@ -60,6 +64,9 @@ public class StartContainerProcess : SingleContainerOperationCmdlet
 
     #region Overrides
 
+    /// <summary>
+    /// Creates the process in the container and runs it, attached unless -Detached was given.
+    /// </summary>
     protected override async Task ProcessRecordAsync()
     {
         var id = ContainerIdOrName ?? Container.ID;
