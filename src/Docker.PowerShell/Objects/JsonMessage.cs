@@ -1,52 +1,51 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
-namespace Docker.PowerShell.Objects
+namespace Docker.PowerShell.Objects;
+
+internal class JsonMessage
 {
-    internal class JsonMessage
-    {
-        [JsonProperty(PropertyName ="stream")]
-        public string Stream { get; set; }
+    [JsonPropertyName("stream")]
+    public string Stream { get; set; }
 
-        [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; }
+    [JsonPropertyName("status")]
+    public string Status { get; set; }
 
-        [JsonProperty(PropertyName = "progressDetail")]
-        public JsonProgress Progress { get; set; }
+    [JsonPropertyName("progressDetail")]
+    public JsonProgress Progress { get; set; }
 
-        [JsonProperty(PropertyName = "id")]
-        public string ID { get; set; }
+    [JsonPropertyName("id")]
+    public string ID { get; set; }
 
-        [JsonProperty(PropertyName = "from")]
-        public string From { get; set; }
+    [JsonPropertyName("from")]
+    public string From { get; set; }
 
-        [JsonProperty(PropertyName = "time")]
-        public long Time { get; set; }
+    [JsonPropertyName("time")]
+    public long Time { get; set; }
 
-        [JsonProperty(PropertyName = "timeNano")]
-        public long TimeNano { get; set; }
+    [JsonPropertyName("timeNano")]
+    public long TimeNano { get; set; }
 
-        [JsonProperty(PropertyName = "errorDetail")]
-        public JsonError Error { get; set; }
-    }
+    [JsonPropertyName("errorDetail")]
+    public JsonError Error { get; set; }
+}
 
-    internal class JsonProgress
-    {
-        [JsonProperty(PropertyName = "current")]
-        public long Current { get; set; }
+internal class JsonProgress
+{
+    [JsonPropertyName("current")]
+    public long Current { get; set; }
 
-        [JsonProperty(PropertyName = "total")]
-        public long Total { get; set; }
+    [JsonPropertyName("total")]
+    public long Total { get; set; }
 
-        [JsonProperty(PropertyName = "start")]
-        public long Start { get; set; }
-    }
+    [JsonPropertyName("start")]
+    public long Start { get; set; }
+}
 
-    internal class JsonError
-    {
-        [JsonProperty(PropertyName = "code")]
-        public long Code { get; set; }
+internal class JsonError
+{
+    [JsonPropertyName("code")]
+    public long Code { get; set; }
 
-        [JsonProperty(PropertyName = "message")]
-        public string Message { get; set; }
-    }
+    [JsonPropertyName("message")]
+    public string Message { get; set; }
 }

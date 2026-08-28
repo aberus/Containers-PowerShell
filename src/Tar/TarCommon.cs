@@ -74,7 +74,7 @@ namespace Tar
         public static string MakeASCII(string s)
         {
             var sb = new StringBuilder();
-            for (int i =0 ; i < s.Length; i++)
+            for (int i = 0; i < s.Length; i++)
             {
                 sb.Append(s[i] <= 127 ? s[i] : '?');
             }

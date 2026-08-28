@@ -3,94 +3,97 @@ using Docker.DotNet.Models;
 using System.Threading.Tasks;
 using Docker.PowerShell.Support;
 
-namespace Docker.PowerShell.Cmdlets
+namespace Docker.PowerShell.Cmdlets;
+
+[Cmdlet(VerbsLifecycle.Start, "ContainerProcess",
+        DefaultParameterSetName = CommonParameterSetNames.Default)]
+[OutputType(typeof(ContainerListResponse))]
+[Alias("Exec-Container")]
+public class StartContainerProcess : SingleContainerOperationCmdlet
 {
-    [Cmdlet(VerbsLifecycle.Start, "ContainerProcess",
-            DefaultParameterSetName = CommonParameterSetNames.Default)]
-    [OutputType(typeof(ContainerListResponse))]
-    [Alias("Exec-Container")]
-    public class StartContainerProcess : SingleContainerOperationCmdlet
+    #region Parameters
+
+    /// <summary>
+    /// The command to use by default when starting new container.
+    /// </summary>
+    [Parameter(ParameterSetName = CommonParameterSetNames.Default,
+        ValueFromRemainingArguments = true,
+        Position = 1)]
+    [Parameter(ParameterSetName = CommonParameterSetNames.ContainerObject,
+        ValueFromRemainingArguments = true,
+        Position = 1)]
+    [ValidateNotNullOrEmpty]
+    public string[] Command { get; set; }
+
+    /// <summary>
+    /// Whether or not to start the process in detached mode.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Detached { get; set; }
+
+    /// <summary>
+    /// Whether or not to use stdin of the started process.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Input { get; set; }
+
+    /// <summary>
+    /// Whether or not to use terminal emulation.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Terminal { get; set; }
+
+    /// <summary>
+    /// Whether or not to start the process in privileged mode.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Privileged { get; set; }
+
+    /// <summary>
+    /// The user context under which the process should be started.
+    /// </summary>
+    [Parameter]
+    public string User { get; set; }
+
+    #endregion
+
+    #region Overrides
+
+    protected override async Task ProcessRecordAsync()
     {
-        #region Parameters
+        var id = ContainerIdOrName ?? Container.ID;
 
-        /// <summary>
-        /// The command to use by default when starting new container.
-        /// </summary>
-        [Parameter(ParameterSetName = CommonParameterSetNames.Default,
-            ValueFromRemainingArguments = true,
-            Position = 1)]
-        [Parameter(ParameterSetName = CommonParameterSetNames.ContainerObject,
-            ValueFromRemainingArguments = true,
-            Position = 1)]
-        [ValidateNotNullOrEmpty]
-        public string[] Command { get; set; }
-
-        /// <summary>
-        /// Whether or not to start the process in detached mode.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter Detached { get; set; }
-
-        /// <summary>
-        /// Whether or not to use stdin of the started process.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter Input { get; set; }
-
-        /// <summary>
-        /// Whether or not to use terminal emulation.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter Terminal { get; set; }
-
-        /// <summary>
-        /// Whether or not to start the process in privileged mode.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter Privileged { get; set; }
-
-        /// <summary>
-        /// The user context under which the process should be started.
-        /// </summary>
-        [Parameter]
-        public string User { get; set; }
-
-        #endregion
-
-        #region Overrides
-
-        protected override async Task ProcessRecordAsync()
+        var execCreate = new ContainerExecCreateParameters
         {
-            var id = ContainerIdOrName ?? Container.ID;
+            Cmd = Command,
+            Privileged = Privileged,
+            User = User,
+            AttachStdin = !Detached && Input,
+            AttachStdout = !Detached,
+            AttachStderr = !Detached,
+            TTY = Terminal,
+        };
 
-            var execConfig = new ExecConfig()
+        var procCreateResponse = await DkrClient.Exec.CreateContainerExecAsync(id, execCreate);
+
+        if (Detached)
+        {
+            await DkrClient.Exec.StartContainerExecAsync(procCreateResponse.ID, new(), CmdletCancellationToken);
+            WriteObject(await DkrClient.Exec.InspectContainerExecAsync(procCreateResponse.ID, CmdletCancellationToken));
+        }
+        else
+        {
+            var execStart = new ContainerExecStartParameters
             {
-                Cmd = Command,
-                Privileged = Privileged,
-                User = User,
-                AttachStdin = !Detached && Input,
-                AttachStdout = !Detached,
-                AttachStderr = !Detached,
                 Detach = Detached,
-                Tty = Terminal,
+                TTY = Terminal,
             };
 
-            var procCreateResponse = await DkrClient.Containers.ExecCreateContainerAsync(id, new ContainerExecCreateParameters(execConfig));
 
-            if (Detached)
-            {
-                await DkrClient.Containers.StartContainerExecAsync(procCreateResponse.ID, CmdletCancellationToken);
-                WriteObject(await DkrClient.Containers.InspectContainerExecAsync(procCreateResponse.ID, CmdletCancellationToken));
-            }
-            else
-            {
-                using (var stream = await DkrClient.Containers.StartWithConfigContainerExecAsync(procCreateResponse.ID, execConfig, CmdletCancellationToken))
-                {
-                    await stream.CopyToConsoleAsync(Terminal, Input, CmdletCancellationToken);
-                }
-            }
+            using var stream = await DkrClient.Exec.StartContainerExecAsync(procCreateResponse.ID, execStart, CmdletCancellationToken);
+            await stream.CopyToConsoleAsync(Terminal, Input, CmdletCancellationToken);
         }
-
-        #endregion
     }
+
+    #endregion
 }

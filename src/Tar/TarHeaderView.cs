@@ -76,7 +76,7 @@ namespace Tar
                 var str = Convert.ToString(value, 8);
                 if (str.Length < field.Length)
                 {
-                    int leadingZeroes =field.Length - str.Length - 1;
+                    int leadingZeroes = field.Length - str.Length - 1;
                     for (int i = 0; i < leadingZeroes; i++)
                     {
                         this[field.Offset + i] = (byte)'0';

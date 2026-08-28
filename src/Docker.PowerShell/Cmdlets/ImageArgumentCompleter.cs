@@ -6,6 +6,8 @@ using System.Linq;
 using Docker.DotNet.Models;
 using System;
 
+namespace Docker.PowerShell.Cmdlets;
+
 public class ImageArgumentCompleter : IArgumentCompleter
 {
     private const string LatestSuffix = ":latest";
@@ -18,7 +20,7 @@ public class ImageArgumentCompleter : IArgumentCompleter
     {
         var client = DockerFactory.CreateClient(fakeBoundParameters);
 
-        var task = client.Images.ListImagesAsync(new ImagesListParameters(){ All = true });
+        var task = client.Images.ListImagesAsync(new ImagesListParameters() { All = true });
         task.Wait();
 
         return task.Result.SelectMany(image =>
@@ -27,14 +29,14 @@ public class ImageArgumentCompleter : IArgumentCompleter
 
                 // If the user has already typed part of the name and this isn't for push, then include IDs that start
                 // with that portion. Otherwise, just let the user tab through the names.
-                if (wordToComplete == "" || commandName == "Submit-ContainerImage")
+                if (wordToComplete?.Length == 0 || commandName == "Submit-ContainerImage")
                 {
                     return repoTags;
                 }
                 else
                 {
                     // Most of the time users will want to write IDs without the sha256: prefix.
-                    // Autocomplete based on this unless they have typed sha256:.
+                    // Auto-complete based on this unless they have typed sha256:.
                     var id = image.ID;
                     var idParts = id.Split(':');
                     if (idParts.Length >= 2 && !wordToComplete.StartsWith(idParts[0] + ":"))

@@ -3,87 +3,57 @@ using System.Collections;
 using Docker.DotNet;
 using Docker.DotNet.X509;
 
-#if !NET46
-using System.Runtime.InteropServices;
-#else
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-#endif
+namespace Docker.PowerShell.Cmdlets;
 
-public class DockerFactory
+public static class DockerFactory
 {
-    private const string ApiVersion = "1.24";
-    private const string CertFileName = "cert.pem";
-    private const string CertKeyFileName = "key.pem";
-    private const string CAFileName = "ca.pem";
-
-    private static readonly bool IsWindows =
-#if NET46
-                true;
-#else
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
-
-    private static readonly string DefaultHost = IsWindows ? "npipe://./pipe/docker_engine" : "unix://var/run/docker.sock";
-
-    public static DockerClient CreateClient(string HostAddress, string CertificateLocation)
+    /// <summary>
+    /// Creates a Docker client. Connection precedence follows the Docker CLI:
+    /// <list type="number">
+    /// <item>an explicit host (<paramref name="dockerHost"/> parameter or the
+    /// <c>DOCKER_HOST</c> environment variable) wins over everything;</item>
+    /// <item>otherwise a named docker context (<paramref name="context"/> parameter or the
+    /// <c>DOCKER_CONTEXT</c> environment variable) is used;</item>
+    /// <item>otherwise the builder resolves the active context, then the OS-specific
+    /// default endpoint (npipe on Windows, unix socket on Linux/macOS).</item>
+    /// </list>
+    /// An <c>ssh://</c> endpoint from any of those sources is served by
+    /// <see cref="Docker.DotNet.Ssh"/>, which tunnels through the local ssh client.
+    /// TLS material for remote hosts comes from the docker context, so
+    /// <paramref name="certificateLocation"/> is currently unused (the 4.x
+    /// <see cref="DockerClientBuilder"/> exposes no per-certificate hook).
+    /// </summary>
+    public static DockerClient CreateClient(string dockerHost, string context, string certificateLocation)
     {
-        HostAddress = HostAddress ?? Environment.GetEnvironmentVariable("DOCKER_HOST") ?? DefaultHost;
+        dockerHost ??= Environment.GetEnvironmentVariable("DOCKER_HOST");
+        context ??= Environment.GetEnvironmentVariable("DOCKER_CONTEXT");
 
-        CertificateLocation = CertificateLocation ?? Environment.GetEnvironmentVariable("DOCKER_CERT_PATH");
+        var builder = new DockerClientBuilder();
 
-        CertificateCredentials cred = null;
-        if (!string.IsNullOrEmpty(CertificateLocation))
+        if (!string.IsNullOrWhiteSpace(dockerHost))
         {
-#if !NET46
-            throw new InvalidOperationException("TLS authetication is not supported in .NET Core.");
-#else
-            // Try to find a certificate for secure connections.
-            cred = new CertificateCredentials(
-                RSAUtil.GetCertFromPEMFiles(
-                    System.IO.Path.Combine(CertificateLocation, CertFileName),
-                    System.IO.Path.Combine(CertificateLocation, CertKeyFileName)));
+            // An explicit host must win over any context and the default socket.
+            var endpoint = new Uri(dockerHost);
 
-            var tlsVerify = Environment.GetEnvironmentVariable("DOCKER_TLS_VERIFY") == "1";
-            X509Certificate2 caCert = null;
-            if (tlsVerify)
-            {
-                caCert = new X509Certificate2(System.IO.Path.Combine(CertificateLocation, CAFileName));
-            }
+            builder = builder.WithEndpoint(endpoint);
+        }
+        else if (!string.IsNullOrWhiteSpace(context))
+        {
 
-            cred.ServerCertificateValidationCallback = (obj, cert, chain, error) =>
-            {
-                if (error == SslPolicyErrors.None || !tlsVerify)
-                {
-                    return true;
-                }
-
-                using (var chain2 = new X509Chain())
-                {
-                    chain2.ChainPolicy.VerificationFlags = X509VerificationFlags.AllFlags;
-                    chain2.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
-
-                    chain2.ChainPolicy.ExtraStore.Add(caCert);
-
-                    if (!chain2.Build(new X509Certificate2(cert)))
-                    {
-                        throw new InvalidOperationException("Failed to build certificate chain for server certificate.");
-                    }
-
-                    return chain2.ChainStatus.Length == 0 || 
-                        (chain2.ChainStatus.Length == 1 && chain2.ChainStatus[0].Status == X509ChainStatusFlags.UntrustedRoot);
-                }
-            };
-#endif
+            builder = builder.WithContext(context);
         }
 
-        return new DockerClientConfiguration(new Uri(HostAddress), cred).CreateClient(new Version(ApiVersion));
+
+        return builder.Build();
     }
+
+
 
     public static DockerClient CreateClient(IDictionary fakeBoundParameters)
     {
         var hostAddress = fakeBoundParameters["HostAddress"] as string;
+        var context = fakeBoundParameters["Context"] as string;
         var certificateLocation = fakeBoundParameters["CertificateLocation"] as string;
-        return DockerFactory.CreateClient(hostAddress, certificateLocation);
+        return CreateClient(hostAddress, context, certificateLocation);
     }
 }

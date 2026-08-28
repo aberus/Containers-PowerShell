@@ -16,7 +16,7 @@ Get-ContainerNetDetail [-Id] <String[]> [-HostAddress <String>] [-CertificateLoc
 
 ### NetworkObject
 ```
-Get-ContainerNetDetail [-Network] <NetworkListResponse[]> [-HostAddress <String>]
+Get-ContainerNetDetail [-Network] <NetworkResponse[]> [-HostAddress <String>]
  [-CertificateLocation <String>] [<CommonParameters>]
 ```
 
@@ -89,7 +89,7 @@ Accept wildcard characters: False
 Specifies the network endpoint.
 
 ```yaml
-Type: NetworkListResponse[]
+Type: NetworkResponse[]
 Parameter Sets: NetworkObject
 Aliases: 
 

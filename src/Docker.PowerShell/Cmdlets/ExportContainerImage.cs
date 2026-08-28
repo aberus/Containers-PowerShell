@@ -1,39 +1,36 @@
 using System.Threading.Tasks;
 using System.Management.Automation;
-using System.Collections.Generic;
 using System.IO;
 
-namespace Docker.PowerShell.Cmdlets
+namespace Docker.PowerShell.Cmdlets;
+
+[Cmdlet(VerbsData.Export, "ContainerImage",
+        DefaultParameterSetName = CommonParameterSetNames.Default)]
+[Alias("Save-ContainerImage")]
+public class ExportContainerImage : ImageOperationCmdlet
 {
-    [Cmdlet(VerbsData.Export, "ContainerImage",
-            DefaultParameterSetName = CommonParameterSetNames.Default)]
-    [Alias("Save-ContainerImage")]
-    public class ExportContainerImage : ImageOperationCmdlet
+    #region Parameters
+
+    [Parameter(Position = 1,
+        Mandatory = true)]
+    [ValidateNotNullOrEmpty]
+    public string DestinationFilePath { get; set; }
+
+    #endregion
+
+    #region Overrides
+
+    protected override async Task ProcessRecordAsync()
     {
-        #region Parameters
+        var filePath = Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, DestinationFilePath);
 
-        [Parameter(Position = 1,
-            Mandatory = true)]
-        [ValidateNotNullOrEmpty]
-        public string DestinationFilePath { get; set; }
-
-        #endregion
-
-        #region Overrides
-
-        protected override async Task ProcessRecordAsync()
+        using (var fs = File.Create(filePath))
+        using (var stream = await DkrClient.Images.SaveImagesAsync([.. ParameterResolvers.GetImageIds(Image, ImageIdOrName)], CmdletCancellationToken))
+        using (CmdletCancellationToken.Register(stream.Dispose))
         {
-            var filePath = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, DestinationFilePath);
-            var names = new List<string>(ParameterResolvers.GetImageIds(Image, ImageIdOrName));
-
-            using (var fs = File.Create(filePath))
-            using (var stream = await DkrClient.Miscellaneous.GetImagesAsTarballAsync(names.ToArray(), CmdletCancellationToken))
-            using (CmdletCancellationToken.Register(() => stream.Dispose()))
-            {
-                await stream.CopyToAsync(fs);
-            }
+            await stream.CopyToAsync(fs);
         }
-
-        #endregion
     }
+
+    #endregion
 }

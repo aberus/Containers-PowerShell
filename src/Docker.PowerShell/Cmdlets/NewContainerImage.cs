@@ -1,166 +1,147 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Management.Automation;
+﻿using Docker.DotNet.Models;
 using Docker.PowerShell.Objects;
-using Docker.DotNet.Models;
-using System.IO;
-using System.Text;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using Docker.PowerShell.Support;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Management.Automation;
+using System.Threading.Tasks;
 
-namespace Docker.PowerShell.Cmdlets
+namespace Docker.PowerShell.Cmdlets;
+
+[Cmdlet(VerbsCommon.New, "ContainerImage",
+        DefaultParameterSetName = CommonParameterSetNames.Default)]
+[Alias("Build-ContainerImage")]
+[OutputType(typeof(ImagesListResponse))]
+public class NewContainerImage : DkrCmdlet
 {
-    [Cmdlet(VerbsCommon.New, "ContainerImage",
-            DefaultParameterSetName = CommonParameterSetNames.Default)]
-    [Alias("Build-ContainerImage")]
-    [OutputType(typeof(ImagesListResponse))]
-    public class NewContainerImage : DkrCmdlet
+    private string SuccessfullyBuilt = "Successfully built ";
+
+    #region Parameters
+
+    [Parameter(Position = 0)]
+    [ValidateNotNullOrEmpty]
+    public string Path { get; set; }
+
+    [Parameter]
+    [ValidateNotNullOrEmpty]
+    public string Repository { get; set; }
+
+    [Parameter]
+    [ValidateNotNullOrEmpty]
+    public string Tag { get; set; }
+
+    [Parameter]
+    public SwitchParameter SkipCache { get; set; }
+
+    [Parameter]
+    public SwitchParameter ForceRemoveIntermediateContainers { get; set; }
+
+    [Parameter]
+    public SwitchParameter PreserveIntermediateContainers { get; set; }
+
+    [Parameter]
+    public AuthConfig Authorization { get; set; }
+
+    #endregion
+
+    #region Overrides
+
+    protected override async Task ProcessRecordAsync()
     {
-        private string SuccessfullyBuilt = "Successfully built ";
+        var directory = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, Path ?? "");
 
-        #region Parameters
-
-        [Parameter(Position = 0)]
-        [ValidateNotNullOrEmpty]
-        public string Path { get; set; }
-
-        [Parameter]
-        [ValidateNotNullOrEmpty]
-        public string Repository { get; set; }
-
-        [Parameter]
-        [ValidateNotNullOrEmpty]
-        public string Tag { get; set; }
-
-        [Parameter]
-        public IsolationType Isolation { get; set; }
-
-        [Parameter]
-        public SwitchParameter SkipCache { get; set; }
-
-        [Parameter]
-        public SwitchParameter ForceRemoveIntermediateContainers { get; set; }
-
-        [Parameter]
-        public SwitchParameter PreserveIntermediateContainers { get; set; }
-
-        #endregion
-
-        #region Overrides
-
-        protected override async Task ProcessRecordAsync()
+        // Ensure the path is a directory.
+        if (!Directory.Exists(directory))
         {
-            var directory = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, Path ?? "");
-
-            // Ensure the path is a directory.
-            if (!Directory.Exists(directory))
-            {
-                throw new DirectoryNotFoundException(directory);
-            }
-
-            WriteVerbose(string.Format("Archiving the contents of {0}", directory));
-
-            using (var reader = Archiver.CreateTarStream(new List<string> { directory }, CmdletCancellationToken))
-            {
-                var parameters = new ImageBuildParameters
-                {
-                    NoCache = SkipCache,
-                    ForceRemove = ForceRemoveIntermediateContainers,
-                    Remove = !PreserveIntermediateContainers,
-                };
-
-                if (this.Isolation != IsolationType.Default)
-                {
-                    parameters.Isolation = this.Isolation.ToString();
-                }
-
-                string repoTag = null;
-                if (!string.IsNullOrEmpty(Repository))
-                {
-                    repoTag = Repository;
-                    if (!string.IsNullOrEmpty(Tag))
-                    {
-                        repoTag += ":";
-                        repoTag += Tag;
-                    }
-
-                    parameters.Tags = new List<string>
-                    {
-                        repoTag
-                    };
-                }
-                else if (!string.IsNullOrEmpty(Tag))
-                {
-                    throw new Exception("You must specify a repository name in order to specify a tag.");
-                }
-
-                string imageId = null;
-                bool failed = false;
-
-                var progress = new Progress<ProgressReader.Status>();
-                var progressRecord = new ProgressRecord(0, "Dockerfile context", "Uploading");
-                progress.ProgressChanged += (o, status) =>
-                {
-                    if (status.Complete)
-                    {
-                        progressRecord.CurrentOperation = null;
-                        progressRecord.StatusDescription = "Processing";
-                    }
-                    else
-                    {
-                        progressRecord.StatusDescription = string.Format("Uploaded {0} bytes", status.TotalBytesRead);
-                    }
-
-                    WriteProgress(progressRecord);
-                };
-
-                var progressReader = new ProgressReader(reader, progress, 512 * 1024);
-                var buildTask = DkrClient.Miscellaneous.BuildImageFromDockerfileAsync(progressReader, parameters, CmdletCancellationToken);
-                var messageWriter = new JsonMessageWriter(this);
-
-                using (var buildStream = await buildTask)
-                {
-                    // Complete the upload progress bar.
-                    progressRecord.RecordType = ProgressRecordType.Completed;
-                    WriteProgress(progressRecord);
-
-                    // ReadLineAsync is not cancellable without closing the whole stream, so register a callback to do just that.
-                    using (CmdletCancellationToken.Register(() => buildStream.Dispose()))
-                    using (var buildReader = new StreamReader(buildStream, new UTF8Encoding(false)))
-                    {
-                        string line;
-                        while ((line = await buildReader.ReadLineAsync()) != null)
-                        {
-                            var message = JsonConvert.DeserializeObject<JsonMessage>(line);
-                            if (message.Stream != null && message.Stream.StartsWith(SuccessfullyBuilt))
-                            {
-                                // This is probably the image ID.
-                                imageId = message.Stream.Substring(SuccessfullyBuilt.Length).Trim();
-                            }
-
-                            if (message.Error != null)
-                            {
-                                failed = true;
-                            }
-
-                            messageWriter.WriteJsonMessage(message);
-                        }
-                    }
-                }
-
-                messageWriter.ClearProgress();
-                if (imageId != null)
-                {
-                    WriteObject(await ContainerOperations.GetImageById(imageId, DkrClient));
-                }
-                else if (!failed)
-                {
-                    throw new Exception("Could not find image, but no error was returned");
-                }
-            }
+            throw new DirectoryNotFoundException(directory);
         }
 
-        #endregion
+        WriteVerbose(string.Format("Archiving the contents of {0}", directory));
+
+        using (var reader = Archiver.CreateTarStream([directory], CmdletCancellationToken))
+        {
+            var parameters = new ImageBuildParameters
+            {
+                NoCache = SkipCache,
+                ForceRemove = ForceRemoveIntermediateContainers,
+                Remove = !PreserveIntermediateContainers,
+            };
+
+            string repoTag = null;
+            if (!string.IsNullOrEmpty(Repository))
+            {
+                repoTag = Repository;
+                if (!string.IsNullOrEmpty(Tag))
+                {
+                    repoTag += ":";
+                    repoTag += Tag;
+                }
+
+                parameters.Tags = new List<string>
+                {
+                    repoTag
+                };
+            }
+            else if (!string.IsNullOrEmpty(Tag))
+            {
+                throw new Exception("You must specify a repository name in order to specify a tag.");
+            }
+
+            string imageId = null;
+            bool failed = false;
+
+            var uploadProgress = new Progress<ProgressReader.Status>();
+            var uploadProgressRecord = new ProgressRecord(0, "Dockerfile context", "Uploading");
+            uploadProgress.ProgressChanged += (o, status) =>
+            {
+                if (status.Complete)
+                {
+                    uploadProgressRecord.CurrentOperation = null;
+                    uploadProgressRecord.StatusDescription = "Processing";
+                }
+                else
+                {
+                    uploadProgressRecord.StatusDescription = string.Format("Uploaded {0} bytes", status.TotalBytesRead);
+                }
+
+                WriteProgress(uploadProgressRecord);
+            };
+            var contents = new ProgressReader(reader, uploadProgress, 512 * 1024);
+
+            var messageWriter = new JsonMessageWriter(this);
+            var progress = new Progress<JSONMessage>((message) =>
+            {
+                if (message.Stream?.StartsWith(SuccessfullyBuilt) == true)
+                {
+                    // This is probably the image ID.
+                    imageId = message.Stream.Substring(SuccessfullyBuilt.Length).Trim();
+                }
+
+                if (message.Error != null)
+                {
+                    failed = true;
+                }
+
+                messageWriter.WriteJsonMessage(message);
+            });
+
+            await DkrClient.Images.BuildImageFromDockerfileAsync(parameters, contents, [Authorization], new Dictionary<string, string>(), progress, CmdletCancellationToken);
+            // Complete the upload uploadProgress bar.
+            uploadProgressRecord.RecordType = ProgressRecordType.Completed;
+            WriteProgress(uploadProgressRecord);
+
+            messageWriter.ClearProgress();
+            if (imageId != null)
+            {
+                WriteObject(await ContainerOperations.GetImageById(imageId, DkrClient));
+            }
+            else if (!failed)
+            {
+                throw new Exception("Could not find image, but no error was returned");
+            }
+        }
     }
+
+    #endregion
 }

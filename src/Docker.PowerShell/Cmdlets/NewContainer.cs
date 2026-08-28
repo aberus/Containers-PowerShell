@@ -5,45 +5,44 @@ using Docker.DotNet.Models;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace Docker.PowerShell.Cmdlets
+namespace Docker.PowerShell.Cmdlets;
+
+[Cmdlet(VerbsCommon.New, "Container",
+        DefaultParameterSetName = CommonParameterSetNames.Default)]
+[OutputType(typeof(ContainerListResponse))]
+public class NewContainer : CreateContainerCmdlet
 {
-    [Cmdlet(VerbsCommon.New, "Container",
-            DefaultParameterSetName = CommonParameterSetNames.Default)]
-    [OutputType(typeof(ContainerListResponse))]
-    public class NewContainer : CreateContainerCmdlet
+    #region Overrides
+
+    /// <summary>
+    /// Creates a new container and lists it to output.
+    /// </summary>
+    protected override async Task ProcessRecordAsync()
     {
-        #region Overrides
-
-        /// <summary>
-        /// Creates a new container and lists it to output.
-        /// </summary>
-        protected override async Task ProcessRecordAsync()
+        foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
         {
-            foreach (var id in ParameterResolvers.GetImageIds(Image, ImageIdOrName))
-            {
-                var createResult = await ContainerOperations.CreateContainer(
-                    id,
-                    this.MemberwiseClone() as CreateContainerCmdlet,
-                    DkrClient);
+            var createResult = await ContainerOperations.CreateContainer(
+                id,
+                MemberwiseClone() as CreateContainerCmdlet,
+                DkrClient);
 
-                if (createResult.Warnings != null)
+            if (createResult.Warnings != null)
+            {
+                foreach (var w in createResult.Warnings)
                 {
-                    foreach (var w in createResult.Warnings)
+                    if (!string.IsNullOrEmpty(w))
                     {
-                        if (!String.IsNullOrEmpty(w))
-                        {
-                            WriteWarning(w);
-                        }
+                        WriteWarning(w);
                     }
                 }
+            }
 
-                if (!String.IsNullOrEmpty(createResult.ID))
-                {
-                    WriteObject((await ContainerOperations.GetContainersById(createResult.ID, DkrClient)).Single());
-                }
+            if (!string.IsNullOrEmpty(createResult.ID))
+            {
+                WriteObject((await ContainerOperations.GetContainersById(createResult.ID, DkrClient)).Single());
             }
         }
-
-        #endregion
     }
+
+    #endregion
 }

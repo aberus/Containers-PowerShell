@@ -22,6 +22,6 @@ namespace Tar
         public long DeviceMinor { get; set; }
         public string SecurityDescriptor { get; set; }
         public FileAttributes? FileAttributes { get; set; }
-        public bool IsMountPoint {get; set; }
+        public bool IsMountPoint { get; set; }
     }
 }

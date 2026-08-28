@@ -7,6 +7,8 @@ using Docker.DotNet.Models;
 using Docker.PowerShell.Objects;
 using System;
 
+namespace Docker.PowerShell.Cmdlets;
+
 public class ContainerArgumentCompleter : IArgumentCompleter
 {
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,

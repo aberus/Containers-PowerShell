@@ -17,7 +17,7 @@ Remove-ContainerNet [-Force] [-Id] <String[]> [-HostAddress <String>] [-Certific
 
 ### NetworkObject
 ```
-Remove-ContainerNet [-Force] [-Network] <NetworkListResponse[]> [-HostAddress <String>]
+Remove-ContainerNet [-Force] [-Network] <NetworkResponse[]> [-HostAddress <String>]
  [-CertificateLocation <String>] [<CommonParameters>]
 ```
 
@@ -113,7 +113,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### System.String[]
-Docker.DotNet.Models.NetworkListResponse[]
+Docker.DotNet.Models.NetworkResponse[]
 ## OUTPUTS
 
 ### System.Object

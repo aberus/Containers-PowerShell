@@ -195,7 +195,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Docker.DotNet.Models.NetworkListResponse
+### Docker.DotNet.Models.NetworkResponse
 
 ## NOTES
 

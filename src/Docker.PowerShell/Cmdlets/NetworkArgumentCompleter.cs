@@ -5,6 +5,8 @@ using System.Management.Automation.Language;
 using System.Linq;
 using System;
 
+namespace Docker.PowerShell.Cmdlets;
+
 public class NetworkArgumentCompleter : IArgumentCompleter
 {
     public IEnumerable<CompletionResult> CompleteArgument(string commandName,
@@ -15,7 +17,7 @@ public class NetworkArgumentCompleter : IArgumentCompleter
     {
         var client = DockerFactory.CreateClient(fakeBoundParameters);
 
-        var result = client.Networks.ListNetworksAsync().Result;
+        var result = client.Networks.ListNetworksAsync().GetAwaiter().GetResult();
 
         return result.SelectMany(network =>
             {
@@ -25,15 +27,23 @@ public class NetworkArgumentCompleter : IArgumentCompleter
                 // Special handling for Get-networkNetwork, where Id an Name are separate parameters.
                 if (commandName == "Get-ContainerNet" && parameterName == "Id")
                 {
-                    return new List<string> { network.ID };
+                    return [network.ID];
                 }
-                else if (wordToComplete == "" || parameterName == "Name")
+                else if (wordToComplete?.Length == 0 || parameterName == "Name")
                 {
-                    return new List<string> { network.Name };
+                    return [network.Name];
+                }
+                else if (wordToComplete?.Length == 0 || parameterName == "Driver")
+                {
+                    return [network.Driver];
+                }
+                else if (wordToComplete?.Length == 0 || parameterName == "Scope")
+                {
+                    return [network.Scope];
                 }
                 else
                 {
-                    return new List<string> { network.Name, network.ID };
+                    return (List<string>)[network.Name, network.ID];
                 }
             })
             .Distinct()
