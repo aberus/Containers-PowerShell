@@ -1,7 +1,7 @@
 ﻿---
 document type: cmdlet
 external help file: Docker.PowerShell.dll-Help.xml
-HelpUri: https://github.com/Microsoft/Docker-PowerShell/blob/master/src/Docker.PowerShell/Help/Get-ContainerNetDetail.md
+HelpUri: https://github.com/aberus/Containers-PowerShell/blob/master/src/Docker.PowerShell/Help/Get-ContainerNetDetail.md
 Locale: en-US
 Module Name: Docker
 ms.date: 08/29/2026

@@ -1,7 +1,7 @@
 ﻿---
 document type: cmdlet
 external help file: Docker.PowerShell.dll-Help.xml
-HelpUri: https://github.com/Microsoft/Docker-PowerShell/tree/master/src/Docker.PowerShell/en-us/
+HelpUri: https://github.com/aberus/Containers-PowerShell/blob/master/src/Docker.PowerShell/Help/Start-ContainerProcess.md
 Locale: en-US
 Module Name: Docker
 ms.date: 08/29/2026

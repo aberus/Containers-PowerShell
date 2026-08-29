@@ -10,7 +10,7 @@
 RootModule = 'Docker.PowerShell.dll'
 
 # Version number of this module. Gets replaced by appveyor at build time.
-ModuleVersion = '2.0.0'
+ModuleVersion = '4.3.3'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -98,8 +98,8 @@ AliasesToExport = @(
 
 PrivateData = @{
     PSData = @{
-        LicenseUri = "https://raw.githubusercontent.com/Microsoft/Docker-PowerShell/master/LICENSE"
-        ProjectUri = "https://github.com/Microsoft/Docker-PowerShell"
+        LicenseUri = "https://raw.githubusercontent.com/aberus/Containers-PowerShell/master/LICENSE"
+        ProjectUri = "https://github.com/aberus/Containers-PowerShell"
     }
 }
 
