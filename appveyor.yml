@@ -2,6 +2,10 @@ version: '{build}'
 pull_requests:
   do_not_increment_build_number: true
 image: WMF 5
+environment:
+  # The WSLC module targets net8.0-windows10.0.19041.0 and needs the Microsoft.WSL.Containers
+  # SDK, neither of which this image provides. Set to true once the image can build it.
+  build_wslc: false
 init:
 - ps: Install-PackageProvider NuGet -Force
 - ps: (new-object net.webclient).DownloadFile('https://raw.githubusercontent.com/dotnet/cli/master/scripts/obtain/dotnet-install.ps1', "C:/dotnet-install.ps1")
@@ -63,6 +67,32 @@ build_script:
     $null = New-Item -ItemType Directory -Force -Path $pwd\bin\Docker\en-US
     Copy-Item (Join-Path $mamlStaging "Docker\*.xml") $pwd\bin\Docker\en-US -Force
     Remove-Item $mamlStaging -Recurse -Force
+- ps: |
+    # Off unless build_wslc is set; see the variable at the top of this file.
+    if ($env:build_wslc -ne 'true') {
+      Write-Host "Skipping the WSLC module build; set build_wslc to true to enable it."
+      return
+    }
+
+    dotnet restore src/WSLC.PowerShell/WSLC.PowerShell.csproj
+    if ($LASTEXITCODE -ne 0) { throw "WSLC restore failed." }
+
+    dotnet publish -o $pwd\bin\WSLC -c Release $pwd\src\WSLC.PowerShell
+    if ($LASTEXITCODE -ne 0) { throw "WSLC publish failed." }
+
+    # Same MAML compilation as the Docker module. Help\WSLC.md is the module landing page, not
+    # a command, so the folder holds no CommandHelp until the per-cmdlet markdown is generated;
+    # the guard keeps the build working until then.
+    Import-Module Microsoft.PowerShell.PlatyPS
+    $wslcHelpMarkdown = (Measure-PlatyPSMarkdown -Path $pwd\src\WSLC.PowerShell\Help\*.md |
+        Where-Object FileType -match 'CommandHelp').FilePath
+    if ($wslcHelpMarkdown) {
+        $mamlStaging = Join-Path $pwd "bin\maml"
+        $null = Export-MamlCommandHelp -CommandHelp (Import-MarkdownCommandHelp -Path $wslcHelpMarkdown) -OutputFolder $mamlStaging -Force
+        $null = New-Item -ItemType Directory -Force -Path $pwd\bin\WSLC\en-US
+        Copy-Item (Join-Path $mamlStaging "WSLC\*.xml") $pwd\bin\WSLC\en-US -Force
+        Remove-Item $mamlStaging -Recurse -Force
+    }
 - ps: mkdir $pwd\testRepo
 - ps: Register-PSRepository -Name test -SourceLocation $pwd\testRepo
 - ps: Publish-Module -Path $pwd\bin\Docker -Repository test

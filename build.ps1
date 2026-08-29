@@ -40,6 +40,23 @@ $null = New-Item -ItemType Directory -Force -Path $pwd\bin\Docker\en-US
 Copy-Item (Join-Path $mamlStaging "Docker\*.xml") $pwd\bin\Docker\en-US -Force
 Remove-Item $mamlStaging -Recurse -Force
 
+# --- WSLC module ---
+dotnet restore src/WSLC.PowerShell/WSLC.PowerShell.csproj
+dotnet publish -o $pwd\bin\WSLC -c Release $pwd\src\WSLC.PowerShell
+
+# Same MAML compilation as the Docker module above. Help\WSLC.md is the module landing page,
+# not a command, so the folder holds no CommandHelp until the per-cmdlet markdown is
+# generated; the guard keeps the build working until then.
+$wslcHelpMarkdown = (Measure-PlatyPSMarkdown -Path $pwd\src\WSLC.PowerShell\Help\*.md |
+    Where-Object FileType -match 'CommandHelp').FilePath
+if ($wslcHelpMarkdown) {
+    $mamlStaging = Join-Path $pwd "bin\maml"
+    $null = Export-MamlCommandHelp -CommandHelp (Import-MarkdownCommandHelp -Path $wslcHelpMarkdown) -OutputFolder $mamlStaging -Force
+    $null = New-Item -ItemType Directory -Force -Path $pwd\bin\WSLC\en-US
+    Copy-Item (Join-Path $mamlStaging "WSLC\*.xml") $pwd\bin\WSLC\en-US -Force
+    Remove-Item $mamlStaging -Recurse -Force
+}
+
 if (!(Test-Path $pwd\testRepo)) {
     New-Item $pwd\testRepo -ItemType Directory
     Register-PSRepository -Name test -SourceLocation $pwd\testRepo
@@ -55,3 +72,9 @@ Install-PSResource -Name Docker -Repository test -Reinstall -TrustRepository
 
 # To regenerate the help markdown from scratch (this discards the hand-written prose):
 # New-MarkdownCommandHelp -ModuleInfo (Get-Module Docker) -OutputFolder src\Docker.PowerShell\Help -WithModulePage
+
+# WSLC has no per-cmdlet markdown yet. Import the built module on a machine with WSL and run
+# the following to generate it; Help\WSLC.md is already written, so -WithModulePage is left
+# off to keep it:
+# Import-Module $pwd\bin\WSLC\WSLC.psd1
+# New-MarkdownCommandHelp -ModuleInfo (Get-Module WSLC) -OutputFolder src\WSLC.PowerShell\Help

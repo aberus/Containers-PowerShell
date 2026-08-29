@@ -10,7 +10,7 @@
 RootModule = 'WSLC.PowerShell.dll'
 
 # Version number of this module
-ModuleVersion = '1.0.0'
+ModuleVersion = '2.9.9'
 
 # Supported PSEditions
 CompatiblePSEditions = @('Core', 'Desktop')
@@ -66,8 +66,10 @@ CmdletsToExport = @(
     'Invoke-ContainerImage',
     'New-Container',
     'New-ContainerSession',
+    'New-ContainerVolume',
     'Remove-Container',
     'Remove-ContainerImage',
+    'Remove-ContainerVolume',
     'Request-ContainerImage',
     'Start-Container',
     'Start-ContainerProcess',
@@ -93,7 +95,8 @@ AliasesToExport = @(
 
 PrivateData = @{
     PSData = @{
-        ProjectUri = 'https://github.com/microsoft/WSL'
+        LicenseUri = "https://raw.githubusercontent.com/aberus/Containers-PowerShell/master/LICENSE"
+        ProjectUri = 'https://github.com/aberus/Containers-PowerShell'
     }
 }
 
