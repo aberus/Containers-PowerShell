@@ -1,4 +1,4 @@
-﻿---
+---
 document type: cmdlet
 external help file: Docker.PowerShell.dll-Help.xml
 HelpUri: https://github.com/aberus/Containers-PowerShell/blob/master/src/Docker.PowerShell/Help/Remove-Container.md

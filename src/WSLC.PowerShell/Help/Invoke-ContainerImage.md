@@ -1,4 +1,4 @@
-﻿---
+---
 document type: cmdlet
 external help file: WSLC.PowerShell.dll-Help.xml
 HelpUri: https://github.com/aberus/Containers-PowerShell/blob/master/src/WSLC.PowerShell/Help/Invoke-ContainerImage.md

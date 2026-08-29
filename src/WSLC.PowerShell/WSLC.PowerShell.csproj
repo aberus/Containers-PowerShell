@@ -7,14 +7,31 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>x64;ARM64</Platforms>
-    <PlatformTarget>x64</PlatformTarget>
-    <WSLCSDK_Platform>x64</WSLCSDK_Platform>
     <WSLCPackageRoot>$(NuGetPackageRoot)microsoft.wsl.containers\2.9.9\</WSLCPackageRoot>
     <WindowsSdkPackageVersion>10.0.26100.81</WindowsSdkPackageVersion>
     <CsWinRTWindowsMetadata>$(NuGetPackageRoot)microsoft.windows.sdk.net.ref\10.0.26100.81\winmd</CsWinRTWindowsMetadata>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblyTitle>WSLC</AssemblyTitle>
   </PropertyGroup>
+
+  <!-- wslcsdk.dll is native and architecture specific - there is no AnyCPU flavour - so pick one
+       the way Microsoft.WSL.Containers.targets would (that targets file is excluded below, so we
+       resolve it ourselves): RuntimeIdentifier first, then the solution Platform, then the running
+       SDK's architecture so a plain "dotnet build"/"dotnet publish" - which comes in as AnyCPU -
+       still produces a module matching the host. -->
+  <PropertyGroup>
+    <WSLCSDK_Platform Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.EndsWith('-x64'))">x64</WSLCSDK_Platform>
+    <WSLCSDK_Platform Condition="'$(RuntimeIdentifier)' != '' and $(RuntimeIdentifier.EndsWith('-arm64'))">arm64</WSLCSDK_Platform>
+    <WSLCSDK_Platform Condition="'$(WSLCSDK_Platform)' == '' and '$(Platform)' != '' and '$(Platform)' != 'AnyCPU'">$(Platform.ToLowerInvariant())</WSLCSDK_Platform>
+    <WSLCSDK_Platform Condition="'$(WSLCSDK_Platform)' == '' and '$(NETCoreSdkPortableRuntimeIdentifier)' != '' and $(NETCoreSdkPortableRuntimeIdentifier.EndsWith('-arm64'))">arm64</WSLCSDK_Platform>
+    <WSLCSDK_Platform Condition="'$(WSLCSDK_Platform)' == ''">x64</WSLCSDK_Platform>
+    <PlatformTarget>$(WSLCSDK_Platform)</PlatformTarget>
+  </PropertyGroup>
+
+  <Target Name="WslcValidatePlatform" BeforeTargets="PrepareForBuild"
+          Condition="'$(WSLCSDK_Platform)' != 'x64' and '$(WSLCSDK_Platform)' != 'arm64'">
+    <Error Text="wslcsdk.dll is only published for x64 and arm64, but this build resolved '$(WSLCSDK_Platform)' (Platform='$(Platform)', RuntimeIdentifier='$(RuntimeIdentifier)')." />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.WSL.Containers" Version="2.9.9">
