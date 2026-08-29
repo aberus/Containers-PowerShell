@@ -6,6 +6,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.Add, "ContainerImageTag",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Tag-ContainerImage")]
 public class AddContainerImageTag : ImageOperationCmdlet
@@ -27,8 +28,15 @@ public class AddContainerImageTag : ImageOperationCmdlet
 
     protected override Task ProcessRecordAsync()
     {
+        var repoTag = Tag is null ? Repository : $"{Repository}:{Tag}";
+
         foreach (var imageName in ParameterResolvers.GetImageNames(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(imageName, $"Add the tag {repoTag}"))
+            {
+                continue;
+            }
+
             WslcSession.TagImage(new TagImageOptions(imageName, Repository, Tag ?? "latest"));
         }
 

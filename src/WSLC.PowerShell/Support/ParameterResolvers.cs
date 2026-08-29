@@ -32,6 +32,52 @@ internal static class ParameterResolvers
     }
 
     /// <summary>
+    /// Pairs each container with the text naming it in -WhatIf output and prompts, and the
+    /// resolver producing it. A caller who typed a name gave us the readable form already,
+    /// so nothing is opened until ShouldProcess has agreed to the change.
+    /// </summary>
+    /// <param name="containers">The list of container objects to use.</param>
+    /// <param name="idsOrNames">The list of container names or ids.</param>
+    /// <param name="session">Opens containers this process did not create.</param>
+    /// <returns>The containers to process, each with a description.</returns>
+    internal static IEnumerable<(string Description, Func<Container> Resolve)> GetContainerTargets(
+        Container[]? containers,
+        string[]? idsOrNames,
+        Func<Session>? session = null)
+    {
+        if (idsOrNames is { Length: > 0 })
+        {
+            return idsOrNames.Select(idOrName =>
+                (idOrName, (Func<Container>)(() => WslcRuntime.GetContainer(idOrName, session))));
+        }
+
+        return (containers ?? []).Select(container =>
+            (Describe(container), (Func<Container>)(() => container)));
+    }
+
+    /// <summary>
+    /// Names the single container a cmdlet was given, preferring the name the caller typed.
+    /// </summary>
+    /// <param name="container">The container object to use.</param>
+    /// <param name="idOrName">The container name or id.</param>
+    /// <returns>Text identifying the container to a person.</returns>
+    internal static string DescribeContainer(Container? container, string? idOrName)
+    {
+        return string.IsNullOrEmpty(idOrName) ? Describe(container!) : idOrName!;
+    }
+
+    /// <summary>
+    /// Names a container by its tracked name and short id, so a prompt does not read as a
+    /// 64 character hash.
+    /// </summary>
+    private static string Describe(Container container)
+    {
+        var name = WslcRuntime.GetContainerName(container);
+        var shortId = Formatter.TruncateId(container.Id);
+        return name == container.Id ? shortId : $"{name} ({shortId})";
+    }
+
+    /// <summary>
     /// Uses either the container object, or resolves the name/id against the containers
     /// tracked in the current process.
     /// </summary>

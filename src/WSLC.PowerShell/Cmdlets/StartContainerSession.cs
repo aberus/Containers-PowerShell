@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Start, "ContainerSession",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class StartContainerSession : WslcCmdlet
 {
@@ -40,7 +41,10 @@ public class StartContainerSession : WslcCmdlet
         {
             // Sessions created by this module are started on creation, so this is
             // simply "ensure the default session exists and is running".
-            WslcRuntime.GetOrCreateDefaultSession();
+            if (ShouldProcess(WslcRuntime.DefaultSessionName, "Start session"))
+            {
+                WslcRuntime.GetOrCreateDefaultSession();
+            }
         }
 
         return Task.CompletedTask;
@@ -48,6 +52,11 @@ public class StartContainerSession : WslcCmdlet
 
     private void EnsureStarted(Session session, string name)
     {
+        if (!ShouldProcess(name, "Start session"))
+        {
+            return;
+        }
+
         try
         {
             session.Start();

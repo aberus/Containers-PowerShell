@@ -5,6 +5,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Stop, "ContainerSession",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 public class StopContainerSession : WslcCmdlet
 {
@@ -31,8 +32,12 @@ public class StopContainerSession : WslcCmdlet
         }
         else if (Session is not null)
         {
-            Session.Terminate();
-            WslcRuntime.RemoveSession(WslcRuntime.GetSessionName(Session), out _);
+            var name = WslcRuntime.GetSessionName(Session);
+            if (ShouldProcess(name, "Terminate session"))
+            {
+                Session.Terminate();
+                WslcRuntime.RemoveSession(name, out _);
+            }
         }
         else
         {
@@ -44,8 +49,13 @@ public class StopContainerSession : WslcCmdlet
         return Task.CompletedTask;
     }
 
-    private static void Terminate(string name)
+    private void Terminate(string name)
     {
+        if (!ShouldProcess(name, "Terminate session"))
+        {
+            return;
+        }
+
         WslcRuntime.GetSession(name).Terminate();
         WslcRuntime.RemoveSession(name, out _);
     }

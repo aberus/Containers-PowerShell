@@ -376,6 +376,33 @@ internal static class WslcRuntime
         ContainerIndex.RemoveRange(record.SessionName, missing);
     }
 
+    /// <summary>
+    /// The container names and ids known for a session — those tracked in this process plus
+    /// those only recorded on disk. Nothing is opened, so this is safe for tab completion.
+    /// </summary>
+    public static IEnumerable<(string Name, string Id)> GetContainerCandidates(string? sessionName = null)
+    {
+        var tracked = Containers
+            .Where(p => sessionName is null ||
+                        string.Equals(GetContainerSessionName(p.Key), sessionName, StringComparison.OrdinalIgnoreCase))
+            .Select(p => (Name: p.Key, Id: p.Value.Id));
+
+        ContainerIndex.SessionRecord[] records;
+        if (sessionName is null)
+        {
+            records = ContainerIndex.ReadAll();
+        }
+        else
+        {
+            var record = ContainerIndex.Read(sessionName);
+            records = record is null ? [] : [record];
+        }
+
+        var recorded = records.SelectMany(r => r.Containers).Select(c => (c.Name, c.Id));
+
+        return tracked.Concat(recorded).DistinctBy(c => c.Name, StringComparer.OrdinalIgnoreCase);
+    }
+
     public static Container[] GetContainers(string? sessionName = null)
     {
         if (string.IsNullOrEmpty(sessionName))

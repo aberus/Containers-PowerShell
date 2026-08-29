@@ -12,6 +12,7 @@ public abstract class SingleContainerOperationCmdlet : WslcCmdlet
                Position = 0,
                Mandatory = true)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ContainerArgumentCompleter))]
     [Alias("Name", "Id")]
     public string? ContainerIdOrName { get; set; }
 

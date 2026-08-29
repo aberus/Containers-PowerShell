@@ -6,6 +6,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Submit, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ImageInfo))]
 [Alias("Push-ContainerImage")]
@@ -18,6 +19,7 @@ public class SubmitContainerImage : WslcCmdlet
                Position = 0,
                Mandatory = true)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ImageArgumentCompleter))]
     [Alias("ImageName", "ImageId")]
     public string? ImageIdOrName { get; set; }
 
@@ -30,6 +32,12 @@ public class SubmitContainerImage : WslcCmdlet
 
     [Parameter]
     public SwitchParameter PassThru { get; set; }
+
+    /// <summary>
+    /// Answers the confirmation prompt about publishing the image to its registry.
+    /// </summary>
+    [Parameter]
+    public SwitchParameter Force { get; set; }
 
     /// <summary>
     /// The registry authentication for the push. Defaults to the token stored by
@@ -45,6 +53,15 @@ public class SubmitContainerImage : WslcCmdlet
     protected override async Task ProcessRecordAsync()
     {
         var imageName = ImageIdOrName ?? Image!.Name;
+
+        if (!ShouldProcessAndContinue(
+                imageName,
+                "Push image",
+                $"Pushing \"{imageName}\" publishes it to its registry, where anyone with access can pull it and this module cannot withdraw it. Push it?",
+                Force))
+        {
+            return;
+        }
 
         var registryAuth = RegistryAuth ?? RegistryAuthStore.Find(WslcSessionName, imageName) ?? string.Empty;
 

@@ -65,6 +65,39 @@ public abstract class WslcCmdlet : PSCmdlet
 
     #endregion
 
+    #region Confirmation
+
+    /// <summary>
+    /// The "Yes to All" / "No to All" answers to <see cref="ShouldContinue"/>, kept on the
+    /// cmdlet so an answer given for one pipeline item applies to the rest.
+    /// </summary>
+    private bool yesToAll;
+
+    private bool noToAll;
+
+    /// <summary>
+    /// Confirms a change nothing in this module can undo: a deleted container, an image
+    /// published to a registry. ShouldProcess runs first, so -WhatIf and -Confirm behave as
+    /// usual; the extra prompt then asks about the consequence itself, and only -Force
+    /// answers that one in advance.
+    /// </summary>
+    /// <param name="target">The resource being changed, as reported by -WhatIf.</param>
+    /// <param name="action">The change being made, also used as the prompt caption.</param>
+    /// <param name="query">The question describing what cannot be taken back.</param>
+    /// <param name="force">Whether -Force was supplied, which answers the query with yes.</param>
+    /// <returns>True when the caller should go ahead with the change.</returns>
+    protected bool ShouldProcessAndContinue(string target, string action, string query, bool force)
+    {
+        if (!ShouldProcess(target, action))
+        {
+            return false;
+        }
+
+        return force || ShouldContinue(query, action, ref yesToAll, ref noToAll);
+    }
+
+    #endregion
+
     #region Overrides
 
     protected sealed override void ProcessRecord()

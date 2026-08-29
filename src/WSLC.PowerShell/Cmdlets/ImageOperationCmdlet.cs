@@ -15,6 +15,7 @@ public abstract class ImageOperationCmdlet : WslcCmdlet
                Position = 0,
                Mandatory = true)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ImageArgumentCompleter))]
     [Alias("ImageName", "ImageId")]
     public string[]? ImageIdOrName { get; set; }
 

@@ -14,6 +14,7 @@ public class GetContainer : WslcCmdlet
         ValueFromPipeline = true,
                Position = 0)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ContainerArgumentCompleter))]
     [Alias("Name", "Id")]
     public string[]? ContainerIdOrName { get; set; }
 

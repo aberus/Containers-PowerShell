@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Invoke, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Run-ContainerImage", "Run-Container")]
 [OutputType(typeof(Container))]
@@ -49,6 +50,11 @@ public class InvokeContainerImage : CreateContainerCmdlet
     {
         foreach (var imageName in ParameterResolvers.GetImageNames(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(imageName, "Create and start a container from image"))
+            {
+                continue;
+            }
+
             var settings = BuildContainerSettings(imageName);
             settings.EnableAutoRemove = RemoveAutomatically;
 

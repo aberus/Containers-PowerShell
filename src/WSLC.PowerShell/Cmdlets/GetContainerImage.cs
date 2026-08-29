@@ -20,6 +20,7 @@ public class GetContainerImage : WslcCmdlet
         ValueFromPipeline = true,
                Position = 0)]
     [ValidateNotNullOrEmpty]
+    [ArgumentCompleter(typeof(ImageArgumentCompleter))]
     [Alias("ImageName", "ImageId")]
     public string[]? ImageIdOrName { get; set; }
 

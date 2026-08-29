@@ -6,6 +6,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.New, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(Container))]
 public class NewContainer : CreateContainerCmdlet
@@ -19,6 +20,11 @@ public class NewContainer : CreateContainerCmdlet
     {
         foreach (var imageName in ParameterResolvers.GetImageNames(Image, ImageIdOrName))
         {
+            if (!ShouldProcess(imageName, "Create a container from image"))
+            {
+                continue;
+            }
+
             var settings = BuildContainerSettings(imageName);
             var container = WslcSession.CreateContainer(settings);
             WslcRuntime.RegisterContainer(

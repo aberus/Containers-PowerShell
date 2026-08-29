@@ -6,6 +6,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsData.Import, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [Alias("Load-ContainerImage")]
 public class ImportContainerImage : WslcCmdlet
@@ -40,6 +41,11 @@ public class ImportContainerImage : WslcCmdlet
         foreach (var item in FilePath)
         {
             var filePath = Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, item);
+
+            if (!ShouldProcess(filePath, "Import the image saved in this file"))
+            {
+                continue;
+            }
 
             var operation = RootFilesystem
                 ? WslcSession.ImportImageAsync(filePath, ImageName ?? string.Empty)

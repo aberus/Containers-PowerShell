@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Request, "ContainerImage",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(ImageInfo))]
 [Alias("Pull-ContainerImage")]
@@ -40,6 +41,11 @@ public class RequestContainerImage : WslcCmdlet
     protected override async Task ProcessRecordAsync()
     {
         var uri = Tag is null ? Repository : $"{Repository}:{Tag}";
+        if (!ShouldProcess(uri, "Pull image"))
+        {
+            return;
+        }
+
         var options = new PullImageOptions(uri);
         var registryAuth = RegistryAuth ?? RegistryAuthStore.Find(WslcSessionName, Repository);
         if (registryAuth is not null)

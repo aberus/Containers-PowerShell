@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Start, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(Container))]
 public class StartContainer : MultiContainerOperationCmdlet
@@ -33,8 +34,14 @@ public class StartContainer : MultiContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
-        foreach (var container in ParameterResolvers.GetContainers(Container, ContainerIdOrName, () => WslcSession))
+        foreach (var (description, resolve) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName, () => WslcSession))
         {
+            if (!ShouldProcess(description, "Start container"))
+            {
+                continue;
+            }
+
+            var container = resolve();
             if (Attach)
             {
                 await ProcessOperations.AttachAndWaitAsync(

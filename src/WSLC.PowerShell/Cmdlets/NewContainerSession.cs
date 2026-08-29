@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsCommon.New, "ContainerSession",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(Session))]
 public class NewContainerSession : WslcCmdlet
@@ -55,6 +56,11 @@ public class NewContainerSession : WslcCmdlet
             }
 
             WriteObject(existing);
+            return Task.CompletedTask;
+        }
+
+        if (!ShouldProcess(Name, "Create session"))
+        {
             return Task.CompletedTask;
         }
 

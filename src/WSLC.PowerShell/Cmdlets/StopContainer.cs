@@ -7,6 +7,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Stop, "Container",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(Container))]
 public class StopContainer : MultiContainerOperationCmdlet
@@ -46,8 +47,14 @@ public class StopContainer : MultiContainerOperationCmdlet
 
     protected override Task ProcessRecordAsync()
     {
-        foreach (var container in ParameterResolvers.GetContainers(Container, ContainerIdOrName, () => WslcSession))
+        foreach (var (description, resolve) in ParameterResolvers.GetContainerTargets(Container, ContainerIdOrName, () => WslcSession))
         {
+            if (!ShouldProcess(description, Force ? "Kill container" : "Stop container"))
+            {
+                continue;
+            }
+
+            var container = resolve();
             if (Force)
             {
                 container.Stop(Signal.SIGKILL, TimeSpan.Zero);

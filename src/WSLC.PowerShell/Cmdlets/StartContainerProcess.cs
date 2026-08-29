@@ -8,6 +8,7 @@ using WSLC.PowerShell.Support;
 namespace WSLC.PowerShell.Cmdlets;
 
 [Cmdlet(VerbsLifecycle.Start, "ContainerProcess",
+        SupportsShouldProcess = true,
         DefaultParameterSetName = CommonParameterSetNames.Default)]
 [OutputType(typeof(Process))]
 [Alias("Exec-Container")]
@@ -56,6 +57,12 @@ public class StartContainerProcess : SingleContainerOperationCmdlet
 
     protected override async Task ProcessRecordAsync()
     {
+        var target = ParameterResolvers.DescribeContainer(Container, ContainerIdOrName);
+        if (!ShouldProcess(target, $"Run \"{string.Join(" ", Command)}\" inside the container"))
+        {
+            return;
+        }
+
         var container = ParameterResolvers.GetContainer(Container, ContainerIdOrName, () => WslcSession);
 
         var settings = new ProcessSettings
